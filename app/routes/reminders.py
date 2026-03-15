@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from bson.objectid import ObjectId
 from app import db
+from config import Config
 
 reminders_bp = Blueprint("reminders", __name__)
 
@@ -11,6 +12,11 @@ reminders_bp = Blueprint("reminders", __name__)
 @login_required
 def create():
     if request.method == "POST":
+        current_count = db.reminders.count_documents({"user_id": ObjectId(current_user.id)})
+        if current_count >= Config.MAX_REMINDERS_PER_USER:
+            flash(f"You can only have {Config.MAX_REMINDERS_PER_USER} reminders. Please delete one to add a new one.", "error")
+            return redirect(url_for("reminders.create"))
+
         event_name = request.form.get("event_name", "").strip()
         event_type = request.form.get("event_type", "birthday")
         event_date = request.form.get("event_date", "")

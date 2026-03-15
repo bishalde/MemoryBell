@@ -12,7 +12,7 @@
     <div class="absolute top-40 right-10 w-72 h-72 bg-sky-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float-delay"></div>
     <div class="absolute bottom-20 left-1/3 w-72 h-72 bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float-slow"></div>
 
-    <div class="relative max-w-6xl mx-auto px-6 lg:px-8 pt-16 md:pt-24 pb-12">
+    <div class="relative max-w-6xl mx-auto px-6 lg:px-8 pt-16 md:pt-28 pb-16">
         <!-- Badge -->
         <div class="flex justify-center mb-8 animate-fade-in">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/5 text-sm text-gray-600">
@@ -29,40 +29,89 @@
             </h1>
             <p class="mt-6 text-gray-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
                 Store birthdays, anniversaries & special dates in one place.
-                Get reminded via <strong class="text-gray-800">SMS</strong> & <strong class="text-gray-800">Phone Calls</strong>.
+                Get reminded via <strong class="text-gray-800">SMS</strong> & <strong class="text-gray-800">Phone Calls</strong> so you never miss a moment.
             </p>
         </div>
 
-        <!-- CTA -->
-        <form action="/signup" method="GET" class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto animate-fade-in-up">
-            <div class="w-full sm:flex-1 relative">
-                <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
-                <input type="email" name="email" placeholder="Your email address"
-                    class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200 bg-white focus:outline-none focus:border-black focus:ring-0 text-sm transition">
-            </div>
-            <button type="submit" class="w-full sm:w-auto px-8 py-3.5 bg-black text-white rounded-2xl text-sm font-semibold hover:bg-gray-800 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap shadow-lg shadow-black/10">
+        <!-- CTA Buttons -->
+        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up">
+            <a href="/signup" class="w-full sm:w-auto px-8 py-4 bg-black text-white rounded-2xl text-sm font-semibold hover:bg-gray-800 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-black/10 text-center">
                 Get Started Free
-            </button>
-        </form>
+                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            </a>
+            <a href="#how-it-works" class="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 rounded-2xl text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all text-center">
+                See How It Works
+            </a>
+        </div>
         <p class="mt-4 text-center text-xs text-gray-400">No credit card required. Free forever.</p>
+
+        <!-- Mock Preview -->
+        <div class="mt-16 max-w-2xl mx-auto animate-fade-in-up">
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-xl shadow-gray-200/50 p-6 md:p-8">
+                <div class="flex items-center gap-2 mb-5">
+                    <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                    <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                    <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+                    <span class="ml-3 text-xs text-gray-400 font-medium">MemoryBell Dashboard</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-pink-50 border border-pink-100">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">&#127874;</span>
+                            <div>
+                                <p class="font-semibold text-sm">Mom's Birthday</p>
+                                <p class="text-xs text-gray-400">March 20 &middot; SMS</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-100 text-amber-700">In 5 days</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-purple-50 border border-purple-100">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">&#128141;</span>
+                            <div>
+                                <p class="font-semibold text-sm">Wedding Anniversary</p>
+                                <p class="text-xs text-gray-400">April 12 &middot; Phone Call</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-100 text-emerald-700">Upcoming</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-blue-50 border border-blue-100">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">&#128197;</span>
+                            <div>
+                                <p class="font-semibold text-sm">Best Friend's Graduation</p>
+                                <p class="text-xs text-gray-400">May 5 &middot; SMS</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-100 text-emerald-700">Upcoming</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
 <!-- Feature Cards Section -->
-<section class="relative bg-white py-10 pb-20">
+<section class="relative bg-gray-50 py-20 md:py-24">
     <div class="max-w-6xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-14">
+            <p class="text-sm font-semibold text-violet-600 tracking-wide uppercase mb-3">Features</p>
+            <h2 class="text-3xl md:text-5xl font-bold tracking-tight">Everything You Need</h2>
+            <p class="text-gray-500 mt-3 max-w-xl mx-auto">Simple yet powerful tools to make sure you never miss an important date.</p>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <!-- Card 1: WhatsApp -->
-            <div class="card-hover group p-6 rounded-3xl bg-emerald-50 border border-emerald-100/50 animate-fade-in-up" style="animation-delay: 0.1s">
+            <!-- Card 1: SMS -->
+            <div class="card-hover group p-6 rounded-3xl bg-white border border-gray-100 shadow-sm animate-fade-in-up" style="animation-delay: 0.1s">
                 <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
                 </div>
-                <h3 class="font-bold text-base mb-1.5">WhatsApp Alerts</h3>
-                <p class="text-sm text-gray-500 leading-relaxed">Get friendly reminders delivered straight to your WhatsApp.</p>
+                <h3 class="font-bold text-base mb-1.5">SMS Alerts</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">Get clear, formatted SMS reminders delivered right to your phone.</p>
             </div>
 
             <!-- Card 2: Phone Call -->
-            <div class="card-hover group p-6 rounded-3xl bg-amber-50 border border-amber-100/50 animate-fade-in-up" style="animation-delay: 0.2s">
+            <div class="card-hover group p-6 rounded-3xl bg-white border border-gray-100 shadow-sm animate-fade-in-up" style="animation-delay: 0.2s">
                 <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
                 </div>
@@ -71,7 +120,7 @@
             </div>
 
             <!-- Card 3: Smart Schedule -->
-            <div class="card-hover group p-6 rounded-3xl bg-violet-50 border border-violet-100/50 animate-fade-in-up" style="animation-delay: 0.3s">
+            <div class="card-hover group p-6 rounded-3xl bg-white border border-gray-100 shadow-sm animate-fade-in-up" style="animation-delay: 0.3s">
                 <div class="w-12 h-12 rounded-2xl bg-violet-500 text-white flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
@@ -79,20 +128,20 @@
                 <p class="text-sm text-gray-500 leading-relaxed">Choose to be reminded same day, or 1, 3, 7 days ahead.</p>
             </div>
 
-            <!-- Card 4: Dashboard -->
-            <div class="card-hover group p-6 rounded-3xl bg-sky-50 border border-sky-100/50 animate-fade-in-up" style="animation-delay: 0.4s">
+            <!-- Card 4: Security -->
+            <div class="card-hover group p-6 rounded-3xl bg-white border border-gray-100 shadow-sm animate-fade-in-up" style="animation-delay: 0.4s">
                 <div class="w-12 h-12 rounded-2xl bg-sky-500 text-white flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
                 </div>
-                <h3 class="font-bold text-base mb-1.5">Dashboard</h3>
-                <p class="text-sm text-gray-500 leading-relaxed">Beautiful dashboard to manage all your important dates.</p>
+                <h3 class="font-bold text-base mb-1.5">Secure & Private</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">OTP verification, CSRF protection & encrypted passwords keep you safe.</p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- How It Works -->
-<section class="bg-gray-50 py-20 md:py-28">
+<section id="how-it-works" class="bg-white py-20 md:py-28">
     <div class="max-w-5xl mx-auto px-6 lg:px-8">
         <div class="text-center mb-16">
             <p class="text-sm font-semibold text-violet-600 tracking-wide uppercase mb-3">Simple & Powerful</p>
@@ -103,17 +152,74 @@
             <div class="text-center group">
                 <div class="w-16 h-16 rounded-2xl bg-black text-white flex items-center justify-center text-2xl font-bold mx-auto mb-6 group-hover:scale-110 group-hover:rounded-3xl transition-all">1</div>
                 <h3 class="font-bold text-lg mb-2">Create Account</h3>
-                <p class="text-sm text-gray-500 leading-relaxed">Sign up in seconds with your email and phone number. Completely free.</p>
+                <p class="text-sm text-gray-500 leading-relaxed">Sign up with your email, verify your phone via OTP, and you're in. Completely free.</p>
             </div>
             <div class="text-center group">
                 <div class="w-16 h-16 rounded-2xl bg-black text-white flex items-center justify-center text-2xl font-bold mx-auto mb-6 group-hover:scale-110 group-hover:rounded-3xl transition-all">2</div>
                 <h3 class="font-bold text-lg mb-2">Add Reminders</h3>
-                <p class="text-sm text-gray-500 leading-relaxed">Add birthdays, anniversaries, or any custom event with just a few taps.</p>
+                <p class="text-sm text-gray-500 leading-relaxed">Add birthdays, anniversaries, or custom events. Choose when and how to be notified.</p>
             </div>
             <div class="text-center group">
                 <div class="w-16 h-16 rounded-2xl bg-black text-white flex items-center justify-center text-2xl font-bold mx-auto mb-6 group-hover:scale-110 group-hover:rounded-3xl transition-all">3</div>
                 <h3 class="font-bold text-lg mb-2">Get Notified</h3>
-                <p class="text-sm text-gray-500 leading-relaxed">Receive SMS messages and phone calls right on time. Never miss a date.</p>
+                <p class="text-sm text-gray-500 leading-relaxed">Receive well-formatted SMS or phone calls right on time. Never miss a date again.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SMS Preview Section -->
+<section class="bg-gray-50 py-20 md:py-24">
+    <div class="max-w-5xl mx-auto px-6 lg:px-8">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <p class="text-sm font-semibold text-violet-600 tracking-wide uppercase mb-3">Beautiful Notifications</p>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">Messages You'll Love</h2>
+                <p class="text-gray-500 leading-relaxed mb-6">Our reminders are clear, friendly, and well-formatted. Not just a boring alert, but a thoughtful nudge with helpful tips.</p>
+                <ul class="space-y-3">
+                    <li class="flex items-center gap-3 text-sm text-gray-600">
+                        <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        </div>
+                        Personalized with your name and event details
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-gray-600">
+                        <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        </div>
+                        Helpful suggestions for each event type
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-gray-600">
+                        <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        </div>
+                        Urgency-based messaging (today, tomorrow, 3 days, etc.)
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <!-- SMS Mock -->
+                <div class="bg-white rounded-3xl border border-gray-200 shadow-lg p-5 max-w-xs mx-auto">
+                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+                        <div class="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center">
+                            <span class="text-sm font-bold text-violet-600">M</span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold">MemoryBell</p>
+                            <p class="text-[10px] text-gray-400">SMS Notification</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4 text-xs leading-relaxed text-gray-700 font-mono">
+                        <p class="font-bold text-black mb-1">MemoryBell Reminder</p>
+                        <p class="text-gray-300 mb-2">---</p>
+                        <p>Hi Bishal!</p>
+                        <p class="mt-2">Sarah's birthday is <span class="font-bold text-amber-600">TOMORROW</span>!</p>
+                        <p>Event: Mom's Birthday</p>
+                        <p>Date: March 20, 2026</p>
+                        <p class="mt-2">Still time to prepare! Send a wish or surprise them with a gift!</p>
+                        <p class="mt-2 text-gray-400">- MemoryBell</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -181,7 +287,7 @@
 
             <div class="relative">
                 <h2 class="text-3xl md:text-4xl font-bold mb-4 leading-tight">Start Remembering<br>What Matters Today</h2>
-                <p class="text-gray-400 mb-8 max-w-md mx-auto">Join MemoryBell and never miss an important date again. It takes less than 30 seconds.</p>
+                <p class="text-gray-400 mb-8 max-w-md mx-auto">Join MemoryBell and never miss an important date again. It takes less than 30 seconds to get started.</p>
                 <a href="/signup" class="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-black rounded-2xl font-semibold hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98] transition-all">
                     Get Started Free
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>

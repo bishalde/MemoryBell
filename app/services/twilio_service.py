@@ -7,6 +7,27 @@ def get_twilio_client():
     return Client(Config.TWILIO_ACCOUNT_SID, Config.TWILIO_AUTH_TOKEN)
 
 
+def send_otp(to_number):
+    """Send OTP via Twilio Verify."""
+    client = get_twilio_client()
+    verification = client.verify.v2.services(
+        Config.TWILIO_VERIFY_SID
+    ).verifications.create(to=to_number, channel="sms")
+    return verification.status
+
+
+def check_otp(to_number, code):
+    """Verify OTP code via Twilio Verify."""
+    client = get_twilio_client()
+    try:
+        check = client.verify.v2.services(
+            Config.TWILIO_VERIFY_SID
+        ).verification_checks.create(to=to_number, code=code)
+        return check.status == "approved"
+    except Exception:
+        return False
+
+
 def send_whatsapp_reminder(to_number, message):
     client = get_twilio_client()
     msg = client.messages.create(

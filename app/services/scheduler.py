@@ -98,10 +98,19 @@ def _build_whatsapp_message(user_name, contact_name, event_name, event_type, eve
 
     if offset_days == 0:
         time_phrase = "TODAY"
+        urgency = "Don't miss it!"
     elif offset_days == 1:
         time_phrase = "TOMORROW"
+        urgency = "Still time to prepare something special!"
+    elif offset_days == 3:
+        time_phrase = "in 3 days"
+        urgency = "You have time to plan something thoughtful!"
+    elif offset_days == 7:
+        time_phrase = "in 1 week"
+        urgency = "Plenty of time to get ready!"
     else:
         time_phrase = f"in {offset_days} days"
+        urgency = "Mark your calendar!"
 
     contact = contact_name if contact_name else "Someone special"
     name = user_name.split(' ')[0]
@@ -109,20 +118,21 @@ def _build_whatsapp_message(user_name, contact_name, event_name, event_type, eve
     if event_type == "birthday":
         tip = "Send a wish, make a call, or surprise them with a gift!"
     elif event_type == "anniversary":
-        tip = "Plan something special, write a note, or celebrate together!"
+        tip = "Plan something romantic, write a heartfelt note, or celebrate together!"
     else:
         tip = "Make sure you're prepared and don't miss it!"
 
     return (
-        f"MemoryBell Reminder\n"
-        f"{'=' * 28}\n\n"
-        f"Hi {name}!\n\n"
-        f"{contact}'s {event_label} is {time_phrase}!\n"
-        f"Event: {event_name}\n"
-        f"Date: {event_date_str}\n\n"
-        f"Tip: {tip}\n\n"
+        f"*MemoryBell Reminder*\n"
+        f"{'_' * 28}\n\n"
+        f"Hi *{name}*!\n\n"
+        f"{contact}'s {event_label} is *{time_phrase}*!\n\n"
+        f"*Event:* {event_name}\n"
+        f"*Date:* {event_date_str}\n\n"
+        f"{urgency}\n"
+        f"_{tip}_\n\n"
         f"Don't let this special moment pass by.\n"
-        f"- MemoryBell"
+        f"- _MemoryBell_"
     )
 
 
@@ -132,16 +142,37 @@ def _build_sms_message(user_name, contact_name, event_name, event_type, event_da
     contact = contact_name if contact_name else "Someone special"
 
     if offset_days == 0:
-        time_phrase = "today"
+        time_phrase = "TODAY"
+        urgency = "Don't miss it!"
     elif offset_days == 1:
-        time_phrase = "tomorrow"
+        time_phrase = "TOMORROW"
+        urgency = "Still time to prepare!"
+    elif offset_days == 3:
+        time_phrase = "in 3 days"
+        urgency = "Plan something special!"
+    elif offset_days == 7:
+        time_phrase = "in 1 week"
+        urgency = "Plenty of time to get ready!"
     else:
         time_phrase = f"in {offset_days} days"
+        urgency = "Mark your calendar!"
+
+    if event_type == "birthday":
+        tip = "Send a wish or surprise them with a gift!"
+    elif event_type == "anniversary":
+        tip = "Plan something memorable together!"
+    else:
+        tip = "Make sure you're prepared!"
 
     return (
-        f"MemoryBell: Hi {name}! "
-        f"{contact}'s {event_label} ({event_name}) is {time_phrase} - {event_date_str}. "
-        f"Don't forget to celebrate!"
+        f"MemoryBell Reminder\n"
+        f"---\n"
+        f"Hi {name}!\n\n"
+        f"{contact}'s {event_label} is {time_phrase}!\n"
+        f"Event: {event_name}\n"
+        f"Date: {event_date_str}\n\n"
+        f"{urgency} {tip}\n\n"
+        f"- MemoryBell"
     )
 
 

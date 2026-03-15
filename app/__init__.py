@@ -1,11 +1,13 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 from pymongo import MongoClient
 from config import Config
 
 bcrypt = Bcrypt()
 login_manager = LoginManager()
+csrf = CSRFProtect()
 login_manager.login_view = "auth.login"
 mongo_client = None
 db = None
@@ -19,6 +21,7 @@ def create_app():
 
     bcrypt.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)
 
     mongo_client = MongoClient(app.config["MONGO_URI"])
     db = mongo_client.memorybell
