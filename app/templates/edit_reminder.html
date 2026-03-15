@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Edit Reminder - MemoryBell{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto mt-12 px-8">
+    <h1 class="text-3xl font-bold mb-2">Edit Reminder</h1>
+    <p class="text-gray-500 mb-8">Update your reminder details</p>
+
+    <form method="POST" class="space-y-5">
+        <div>
+            <label class="block text-sm font-medium mb-1.5">Event Name</label>
+            <input type="text" name="event_name" required value="{{ reminder.event_name }}"
+                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Event Type</label>
+                <select name="event_type"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm bg-white">
+                    <option value="birthday" {% if reminder.event_type == 'birthday' %}selected{% endif %}>Birthday</option>
+                    <option value="anniversary" {% if reminder.event_type == 'anniversary' %}selected{% endif %}>Anniversary</option>
+                    <option value="custom" {% if reminder.event_type == 'custom' %}selected{% endif %}>Custom</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Date</label>
+                <input type="date" name="event_date" required value="{{ reminder.event_date }}"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Contact Name</label>
+                <input type="text" name="contact_name" value="{{ reminder.contact_name }}"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Contact Phone</label>
+                <input type="tel" name="contact_phone" value="{{ reminder.contact_phone }}"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Notify By</label>
+                <select name="notify_method"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm bg-white">
+                    <option value="whatsapp" {% if reminder.notify_method == 'whatsapp' %}selected{% endif %}>WhatsApp</option>
+                    <option value="call" {% if reminder.notify_method == 'call' %}selected{% endif %}>Phone Call</option>
+                    <option value="both" {% if reminder.notify_method == 'both' %}selected{% endif %}>Both</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1.5">Remind Me</label>
+                <select name="reminder_before"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm bg-white">
+                    <option value="same_day" {% if reminder.reminder_before == 'same_day' %}selected{% endif %}>Same Day</option>
+                    <option value="1_day_before" {% if reminder.reminder_before == '1_day_before' %}selected{% endif %}>1 Day Before</option>
+                    <option value="3_days_before" {% if reminder.reminder_before == '3_days_before' %}selected{% endif %}>3 Days Before</option>
+                    <option value="7_days_before" {% if reminder.reminder_before == '7_days_before' %}selected{% endif %}>7 Days Before</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit"
+            class="w-full py-3 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition text-sm">
+            Update Reminder
+        </button>
+    </form>
+</div>
+{% endblock %}

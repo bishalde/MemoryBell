@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MemoryBell{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3); }
+    </style>
+</head>
+<body class="bg-white text-gray-900 min-h-screen">
+    <!-- Nav -->
+    <nav class="flex items-center justify-between px-8 py-5 max-w-7xl mx-auto">
+        <div class="flex items-center gap-2">
+            <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="black" stroke-width="2"/><path d="M10 14c0-1 1-2 2-2h8c1 0 2 1 2 2v4c0 3-2.5 5-6 5s-6-2-6-5v-4z" fill="black"/><circle cx="12" cy="15" r="1.5" fill="white"/><circle cx="20" cy="15" r="1.5" fill="white"/><path d="M16 6v3M16 6l-2-2M16 6l2-2" stroke="black" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="font-bold text-lg">MemoryBell</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
+            <a href="/" class="hover:text-black">Home</a>
+            <span class="text-gray-300">.</span>
+            <a href="/dashboard" class="hover:text-black">Dashboard</a>
+            <span class="text-gray-300">.</span>
+            <a href="/reminders/create" class="hover:text-black">New Reminder</a>
+        </div>
+        <div class="flex items-center gap-3">
+            {% if current_user.is_authenticated %}
+                <a href="/profile" class="px-5 py-2.5 text-sm rounded-full border border-gray-200 hover:border-gray-400 transition">Profile</a>
+                <a href="/logout" class="px-5 py-2.5 text-sm rounded-full bg-black text-white hover:bg-gray-800 transition">Log Out</a>
+            {% else %}
+                <a href="/login" class="px-5 py-2.5 text-sm rounded-full border border-gray-200 hover:border-gray-400 transition">Log In</a>
+                <a href="/signup" class="px-5 py-2.5 text-sm rounded-full bg-black text-white hover:bg-gray-800 transition">Get Started</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-8">
+        {% for category, message in messages %}
+        <div class="mb-3 px-5 py-3 rounded-xl text-sm
+            {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200
+            {% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-100 mt-20 py-8 text-center text-sm text-gray-400">
+        MemoryBell &mdash; Never forget what matters.
+    </footer>
+</body>
+</html>

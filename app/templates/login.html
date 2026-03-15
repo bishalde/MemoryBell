@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Log In - MemoryBell{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-20 px-8">
+    <div class="text-center mb-10">
+        <h1 class="text-3xl font-bold">Welcome back</h1>
+        <p class="text-gray-500 mt-2">Log in to your MemoryBell account</p>
+    </div>
+
+    <form method="POST" class="space-y-5">
+        <div>
+            <label class="block text-sm font-medium mb-1.5">Email</label>
+            <input type="email" name="email" required
+                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm"
+                placeholder="you@example.com">
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1.5">Password</label>
+            <input type="password" name="password" required
+                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm"
+                placeholder="Your password">
+        </div>
+        <button type="submit"
+            class="w-full py-3 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition text-sm">
+            Log In
+        </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-500 mt-6">
+        Don't have an account? <a href="/signup" class="text-black font-medium hover:underline">Sign up</a>
+    </p>
+</div>
+{% endblock %}

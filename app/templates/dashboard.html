@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - MemoryBell{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-8 pt-10">
+    <div class="flex items-center justify-between mb-10">
+        <div>
+            <h1 class="text-3xl font-bold">Dashboard</h1>
+            <p class="text-gray-500 mt-1">Welcome back, {{ current_user.name }}</p>
+        </div>
+        <a href="/reminders/create"
+            class="px-6 py-2.5 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 transition">
+            + New Reminder
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+        <div class="p-6 rounded-2xl border border-gray-100 bg-white">
+            <p class="text-sm text-gray-500 mb-1">Total Reminders</p>
+            <p class="text-3xl font-bold">{{ total }}</p>
+        </div>
+        <div class="p-6 rounded-2xl border border-gray-100 bg-sky-50">
+            <p class="text-sm text-gray-500 mb-1">Today's Reminders</p>
+            <p class="text-3xl font-bold text-sky-600">{{ today_reminders|length }}</p>
+        </div>
+        <div class="p-6 rounded-2xl border border-gray-100 bg-emerald-50">
+            <p class="text-sm text-gray-500 mb-1">Upcoming</p>
+            <p class="text-3xl font-bold text-emerald-600">{{ upcoming_reminders|length }}</p>
+        </div>
+    </div>
+
+    <!-- Today's Reminders -->
+    {% if today_reminders %}
+    <div class="mb-10">
+        <h2 class="text-lg font-semibold mb-4">Today</h2>
+        <div class="space-y-3">
+            {% for r in today_reminders %}
+            <div class="flex items-center justify-between p-5 rounded-2xl bg-yellow-50 border border-yellow-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-yellow-200 flex items-center justify-center text-lg">
+                        {% if r.event_type == 'birthday' %}&#127874;{% elif r.event_type == 'anniversary' %}&#128141;{% else %}&#128197;{% endif %}
+                    </div>
+                    <div>
+                        <p class="font-medium">{{ r.event_name }}</p>
+                        <p class="text-xs text-gray-500">{{ r.contact_name }} &middot; {{ r.notify_method }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="/reminders/{{ r.id }}/edit" class="px-4 py-1.5 text-xs rounded-full border border-gray-200 hover:border-gray-400 transition">Edit</a>
+                    <form method="POST" action="/reminders/{{ r.id }}/delete" onsubmit="return confirm('Delete this reminder?')">
+                        <button class="px-4 py-1.5 text-xs rounded-full border border-red-200 text-red-600 hover:bg-red-50 transition">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Reminders -->
+    <div>
+        <h2 class="text-lg font-semibold mb-4">All Reminders</h2>
+        {% if all_reminders %}
+        <div class="overflow-hidden rounded-2xl border border-gray-100">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="text-left px-5 py-3 font-medium text-gray-500">Event</th>
+                        <th class="text-left px-5 py-3 font-medium text-gray-500">Date</th>
+                        <th class="text-left px-5 py-3 font-medium text-gray-500">Type</th>
+                        <th class="text-left px-5 py-3 font-medium text-gray-500">Contact</th>
+                        <th class="text-left px-5 py-3 font-medium text-gray-500">Notify</th>
+                        <th class="px-5 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    {% for r in all_reminders %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-5 py-4 font-medium">{{ r.event_name }}</td>
+                        <td class="px-5 py-4 text-gray-500">{{ r.date_str }}</td>
+                        <td class="px-5 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs
+                                {% if r.event_type == 'birthday' %}bg-pink-100 text-pink-700
+                                {% elif r.event_type == 'anniversary' %}bg-purple-100 text-purple-700
+                                {% else %}bg-blue-100 text-blue-700{% endif %}">
+                                {{ r.event_type }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 text-gray-500">{{ r.contact_name }}</td>
+                        <td class="px-5 py-4 text-gray-500">{{ r.notify_method }}</td>
+                        <td class="px-5 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="/reminders/{{ r.id }}/edit" class="px-3 py-1 text-xs rounded-full border border-gray-200 hover:border-gray-400 transition">Edit</a>
+                                <form method="POST" action="/reminders/{{ r.id }}/delete" class="inline" onsubmit="return confirm('Delete?')">
+                                    <button class="px-3 py-1 text-xs rounded-full border border-red-200 text-red-600 hover:bg-red-50 transition">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-16 rounded-2xl border border-gray-100">
+            <p class="text-gray-400 mb-4">No reminders yet</p>
+            <a href="/reminders/create" class="px-6 py-2.5 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 transition">
+                Create Your First Reminder
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
