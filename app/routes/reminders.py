@@ -17,7 +17,7 @@ def create():
         contact_name = request.form.get("contact_name", "").strip()
         contact_phone = request.form.get("contact_phone", "").strip()
         notify_method = request.form.get("notify_method", "whatsapp")
-        reminder_before = request.form.get("reminder_before", "same_day")
+        reminder_before = request.form.getlist("reminder_before") or ["same_day"]
 
         if not event_name or not event_date:
             flash("Event name and date are required.", "error")
@@ -30,6 +30,7 @@ def create():
             "event_date": event_date,
             "contact_name": contact_name,
             "contact_phone": contact_phone,
+            "contact_country_code": request.form.get("contact_country_code", "+91"),
             "notify_method": notify_method,
             "reminder_before": reminder_before,
             "created_at": datetime.utcnow(),
@@ -63,8 +64,9 @@ def edit(reminder_id):
                 "event_date": request.form.get("event_date", ""),
                 "contact_name": request.form.get("contact_name", "").strip(),
                 "contact_phone": request.form.get("contact_phone", "").strip(),
-                "notify_method": request.form.get("notify_method", "whatsapp"),
-                "reminder_before": request.form.get("reminder_before", "same_day"),
+                "contact_country_code": request.form.get("contact_country_code", "+91"),
+                "notify_method": request.form.get("notify_method", "sms"),
+                "reminder_before": request.form.getlist("reminder_before") or ["same_day"],
             }},
         )
         flash("Reminder updated!", "success")

@@ -34,6 +34,7 @@ def create_app():
     from app.routes.reminders import reminders_bp
     from app.routes.profile import profile_bp
     from app.routes.cron import cron_bp
+    from app.routes.history import history_bp
 
     app.register_blueprint(home_bp)
     app.register_blueprint(auth_bp)
@@ -41,5 +42,9 @@ def create_app():
     app.register_blueprint(reminders_bp)
     app.register_blueprint(profile_bp)
     app.register_blueprint(cron_bp)
+    app.register_blueprint(history_bp)
+
+    db.notifications.create_index("user_id")
+    db.notifications.create_index([("reminder_id", 1), ("channel", 1), ("sent_at", -1)])
 
     return app

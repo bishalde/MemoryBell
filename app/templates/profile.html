@@ -2,74 +2,245 @@
 {% block title %}Profile - MemoryBell{% endblock %}
 
 {% block content %}
-<div class="max-w-lg mx-auto mt-12 px-8">
-    <h1 class="text-3xl font-bold mb-8">Profile</h1>
+<div class="max-w-2xl mx-auto px-6 py-10 animate-fade-in-up">
+    <!-- Back link -->
+    <a href="/dashboard" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-black transition mb-6">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+        Back to Dashboard
+    </a>
 
-    <!-- Update Profile -->
-    <form method="POST" action="/profile" class="space-y-5 mb-12">
-        <div>
-            <label class="block text-sm font-medium mb-1.5">Name</label>
-            <input type="text" name="name" value="{{ user.name }}"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
-        </div>
-        <div>
-            <label class="block text-sm font-medium mb-1.5">Email</label>
-            <input type="email" value="{{ user.email }}" disabled
-                class="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 text-gray-400 text-sm">
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium mb-1.5">Phone</label>
-                <input type="tel" name="phone_number" value="{{ user.phone_number }}"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1.5">WhatsApp</label>
-                <input type="tel" name="whatsapp_number" value="{{ user.whatsapp_number }}"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
-            </div>
-        </div>
-        <div>
-            <label class="block text-sm font-medium mb-1.5">Timezone</label>
-            <input type="text" name="timezone" value="{{ user.timezone or 'UTC' }}"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm"
-                placeholder="UTC">
-        </div>
-        <button type="submit"
-            class="w-full py-3 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition text-sm">
-            Update Profile
-        </button>
-    </form>
+    <!-- Profile Hero Card -->
+    <div class="bg-gradient-to-br from-violet-500 via-indigo-500 to-purple-600 rounded-2xl p-6 md:p-8 mb-5 text-white relative overflow-hidden">
+        <!-- Decorative circles -->
+        <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
 
-    <!-- Change Password -->
-    <div class="border-t border-gray-100 pt-8 mb-12">
-        <h2 class="text-lg font-semibold mb-4">Change Password</h2>
-        <form method="POST" action="/profile/change-password" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium mb-1.5">Current Password</label>
-                <input type="password" name="current_password" required
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
+        <div class="relative flex flex-col sm:flex-row items-center gap-5">
+            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl font-bold border border-white/20 shadow-lg">
+                {{ user.name[0]|upper }}
+            </div>
+            <div class="text-center sm:text-left">
+                <h1 class="text-2xl font-bold">{{ user.name }}</h1>
+                <p class="text-white/70 text-sm mt-1">{{ user.email }}</p>
+                {% if user.get('timezone') %}
+                <p class="text-white/50 text-xs mt-1">{{ user.get('timezone', 'UTC') }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="relative grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/20">
+            <div class="text-center">
+                <p class="text-2xl font-bold">{{ total_reminders }}</p>
+                <p class="text-white/60 text-xs font-medium uppercase tracking-wide mt-0.5">Reminders</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl font-bold">{{ total_notifications }}</p>
+                <p class="text-white/60 text-xs font-medium uppercase tracking-wide mt-0.5">Sent</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl font-bold">
+                    {% if user.get('created_at') %}
+                        {{ user.created_at.strftime('%b %Y') }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </p>
+                <p class="text-white/60 text-xs font-medium uppercase tracking-wide mt-0.5">Joined</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8 mb-5">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-1.5">New Password</label>
-                <input type="password" name="new_password" required minlength="6"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
+                <h2 class="font-bold text-sm">Personal Information</h2>
+                <p class="text-xs text-gray-500">Update your name, phone, and preferences</p>
             </div>
+        </div>
+
+        <form method="POST" action="/profile" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Name</label>
+                    <input type="text" name="name" value="{{ user.name }}"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Email</label>
+                    <input type="email" value="{{ user.email }}" disabled
+                        class="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50/50 text-gray-400 text-sm cursor-not-allowed">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Country Code</label>
+                <select name="country_code"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm appearance-none cursor-pointer">
+                    {% set cc = user.get('country_code', '+1') %}
+                    <option value="+1" {% if cc == '+1' %}selected{% endif %}>+1 (US/Canada)</option>
+                    <option value="+44" {% if cc == '+44' %}selected{% endif %}>+44 (UK)</option>
+                    <option value="+91" {% if cc == '+91' %}selected{% endif %}>+91 (India)</option>
+                    <option value="+61" {% if cc == '+61' %}selected{% endif %}>+61 (Australia)</option>
+                    <option value="+49" {% if cc == '+49' %}selected{% endif %}>+49 (Germany)</option>
+                    <option value="+33" {% if cc == '+33' %}selected{% endif %}>+33 (France)</option>
+                    <option value="+81" {% if cc == '+81' %}selected{% endif %}>+81 (Japan)</option>
+                    <option value="+86" {% if cc == '+86' %}selected{% endif %}>+86 (China)</option>
+                    <option value="+55" {% if cc == '+55' %}selected{% endif %}>+55 (Brazil)</option>
+                    <option value="+52" {% if cc == '+52' %}selected{% endif %}>+52 (Mexico)</option>
+                    <option value="+234" {% if cc == '+234' %}selected{% endif %}>+234 (Nigeria)</option>
+                    <option value="+27" {% if cc == '+27' %}selected{% endif %}>+27 (South Africa)</option>
+                    <option value="+254" {% if cc == '+254' %}selected{% endif %}>+254 (Kenya)</option>
+                    <option value="+971" {% if cc == '+971' %}selected{% endif %}>+971 (UAE)</option>
+                    <option value="+966" {% if cc == '+966' %}selected{% endif %}>+966 (Saudi Arabia)</option>
+                    <option value="+82" {% if cc == '+82' %}selected{% endif %}>+82 (South Korea)</option>
+                    <option value="+39" {% if cc == '+39' %}selected{% endif %}>+39 (Italy)</option>
+                    <option value="+34" {% if cc == '+34' %}selected{% endif %}>+34 (Spain)</option>
+                    <option value="+7" {% if cc == '+7' %}selected{% endif %}>+7 (Russia)</option>
+                    <option value="+62" {% if cc == '+62' %}selected{% endif %}>+62 (Indonesia)</option>
+                    <option value="+63" {% if cc == '+63' %}selected{% endif %}>+63 (Philippines)</option>
+                    <option value="+66" {% if cc == '+66' %}selected{% endif %}>+66 (Thailand)</option>
+                    <option value="+90" {% if cc == '+90' %}selected{% endif %}>+90 (Turkey)</option>
+                    <option value="+48" {% if cc == '+48' %}selected{% endif %}>+48 (Poland)</option>
+                    <option value="+31" {% if cc == '+31' %}selected{% endif %}>+31 (Netherlands)</option>
+                    <option value="+46" {% if cc == '+46' %}selected{% endif %}>+46 (Sweden)</option>
+                    <option value="+47" {% if cc == '+47' %}selected{% endif %}>+47 (Norway)</option>
+                    <option value="+64" {% if cc == '+64' %}selected{% endif %}>+64 (New Zealand)</option>
+                    <option value="+65" {% if cc == '+65' %}selected{% endif %}>+65 (Singapore)</option>
+                    <option value="+60" {% if cc == '+60' %}selected{% endif %}>+60 (Malaysia)</option>
+                    <option value="+92" {% if cc == '+92' %}selected{% endif %}>+92 (Pakistan)</option>
+                    <option value="+880" {% if cc == '+880' %}selected{% endif %}>+880 (Bangladesh)</option>
+                    <option value="+94" {% if cc == '+94' %}selected{% endif %}>+94 (Sri Lanka)</option>
+                    <option value="+977" {% if cc == '+977' %}selected{% endif %}>+977 (Nepal)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Phone Number</label>
+                    <input type="tel" name="phone_number" value="{{ user.phone_number }}"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm"
+                        placeholder="9876543210 (without country code)">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">WhatsApp Number</label>
+                    <input type="tel" name="whatsapp_number" value="{{ user.whatsapp_number }}"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm"
+                        placeholder="Same as phone? Leave blank">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Timezone</label>
+                {% set tz = user.get('timezone', 'UTC') %}
+                <select name="timezone"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm appearance-none cursor-pointer">
+                    <option value="UTC" {% if tz == 'UTC' %}selected{% endif %}>UTC (GMT+0)</option>
+                    <option value="US/Eastern" {% if tz == 'US/Eastern' %}selected{% endif %}>US/Eastern (GMT-5)</option>
+                    <option value="US/Central" {% if tz == 'US/Central' %}selected{% endif %}>US/Central (GMT-6)</option>
+                    <option value="US/Mountain" {% if tz == 'US/Mountain' %}selected{% endif %}>US/Mountain (GMT-7)</option>
+                    <option value="US/Pacific" {% if tz == 'US/Pacific' %}selected{% endif %}>US/Pacific (GMT-8)</option>
+                    <option value="US/Alaska" {% if tz == 'US/Alaska' %}selected{% endif %}>US/Alaska (GMT-9)</option>
+                    <option value="US/Hawaii" {% if tz == 'US/Hawaii' %}selected{% endif %}>US/Hawaii (GMT-10)</option>
+                    <option value="Canada/Atlantic" {% if tz == 'Canada/Atlantic' %}selected{% endif %}>Canada/Atlantic (GMT-4)</option>
+                    <option value="Canada/Newfoundland" {% if tz == 'Canada/Newfoundland' %}selected{% endif %}>Canada/Newfoundland (GMT-3:30)</option>
+                    <option value="Europe/London" {% if tz == 'Europe/London' %}selected{% endif %}>Europe/London (GMT+0)</option>
+                    <option value="Europe/Paris" {% if tz == 'Europe/Paris' %}selected{% endif %}>Europe/Paris (GMT+1)</option>
+                    <option value="Europe/Berlin" {% if tz == 'Europe/Berlin' %}selected{% endif %}>Europe/Berlin (GMT+1)</option>
+                    <option value="Europe/Madrid" {% if tz == 'Europe/Madrid' %}selected{% endif %}>Europe/Madrid (GMT+1)</option>
+                    <option value="Europe/Rome" {% if tz == 'Europe/Rome' %}selected{% endif %}>Europe/Rome (GMT+1)</option>
+                    <option value="Europe/Amsterdam" {% if tz == 'Europe/Amsterdam' %}selected{% endif %}>Europe/Amsterdam (GMT+1)</option>
+                    <option value="Europe/Stockholm" {% if tz == 'Europe/Stockholm' %}selected{% endif %}>Europe/Stockholm (GMT+1)</option>
+                    <option value="Europe/Oslo" {% if tz == 'Europe/Oslo' %}selected{% endif %}>Europe/Oslo (GMT+1)</option>
+                    <option value="Europe/Warsaw" {% if tz == 'Europe/Warsaw' %}selected{% endif %}>Europe/Warsaw (GMT+1)</option>
+                    <option value="Europe/Moscow" {% if tz == 'Europe/Moscow' %}selected{% endif %}>Europe/Moscow (GMT+3)</option>
+                    <option value="Europe/Istanbul" {% if tz == 'Europe/Istanbul' %}selected{% endif %}>Europe/Istanbul (GMT+3)</option>
+                    <option value="Asia/Dubai" {% if tz == 'Asia/Dubai' %}selected{% endif %}>Asia/Dubai (GMT+4)</option>
+                    <option value="Asia/Riyadh" {% if tz == 'Asia/Riyadh' %}selected{% endif %}>Asia/Riyadh (GMT+3)</option>
+                    <option value="Asia/Kolkata" {% if tz == 'Asia/Kolkata' %}selected{% endif %}>Asia/Kolkata (GMT+5:30)</option>
+                    <option value="Asia/Colombo" {% if tz == 'Asia/Colombo' %}selected{% endif %}>Asia/Colombo (GMT+5:30)</option>
+                    <option value="Asia/Kathmandu" {% if tz == 'Asia/Kathmandu' %}selected{% endif %}>Asia/Kathmandu (GMT+5:45)</option>
+                    <option value="Asia/Dhaka" {% if tz == 'Asia/Dhaka' %}selected{% endif %}>Asia/Dhaka (GMT+6)</option>
+                    <option value="Asia/Karachi" {% if tz == 'Asia/Karachi' %}selected{% endif %}>Asia/Karachi (GMT+5)</option>
+                    <option value="Asia/Bangkok" {% if tz == 'Asia/Bangkok' %}selected{% endif %}>Asia/Bangkok (GMT+7)</option>
+                    <option value="Asia/Singapore" {% if tz == 'Asia/Singapore' %}selected{% endif %}>Asia/Singapore (GMT+8)</option>
+                    <option value="Asia/Kuala_Lumpur" {% if tz == 'Asia/Kuala_Lumpur' %}selected{% endif %}>Asia/Kuala Lumpur (GMT+8)</option>
+                    <option value="Asia/Jakarta" {% if tz == 'Asia/Jakarta' %}selected{% endif %}>Asia/Jakarta (GMT+7)</option>
+                    <option value="Asia/Manila" {% if tz == 'Asia/Manila' %}selected{% endif %}>Asia/Manila (GMT+8)</option>
+                    <option value="Asia/Shanghai" {% if tz == 'Asia/Shanghai' %}selected{% endif %}>Asia/Shanghai (GMT+8)</option>
+                    <option value="Asia/Tokyo" {% if tz == 'Asia/Tokyo' %}selected{% endif %}>Asia/Tokyo (GMT+9)</option>
+                    <option value="Asia/Seoul" {% if tz == 'Asia/Seoul' %}selected{% endif %}>Asia/Seoul (GMT+9)</option>
+                    <option value="Australia/Sydney" {% if tz == 'Australia/Sydney' %}selected{% endif %}>Australia/Sydney (GMT+11)</option>
+                    <option value="Australia/Melbourne" {% if tz == 'Australia/Melbourne' %}selected{% endif %}>Australia/Melbourne (GMT+11)</option>
+                    <option value="Australia/Perth" {% if tz == 'Australia/Perth' %}selected{% endif %}>Australia/Perth (GMT+8)</option>
+                    <option value="Pacific/Auckland" {% if tz == 'Pacific/Auckland' %}selected{% endif %}>Pacific/Auckland (GMT+13)</option>
+                    <option value="America/Sao_Paulo" {% if tz == 'America/Sao_Paulo' %}selected{% endif %}>America/Sao Paulo (GMT-3)</option>
+                    <option value="America/Mexico_City" {% if tz == 'America/Mexico_City' %}selected{% endif %}>America/Mexico City (GMT-6)</option>
+                    <option value="Africa/Lagos" {% if tz == 'Africa/Lagos' %}selected{% endif %}>Africa/Lagos (GMT+1)</option>
+                    <option value="Africa/Johannesburg" {% if tz == 'Africa/Johannesburg' %}selected{% endif %}>Africa/Johannesburg (GMT+2)</option>
+                    <option value="Africa/Nairobi" {% if tz == 'Africa/Nairobi' %}selected{% endif %}>Africa/Nairobi (GMT+3)</option>
+                </select>
+            </div>
+
             <button type="submit"
-                class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition text-sm">
-                Change Password
+                class="w-full py-3 bg-black text-white rounded-xl font-semibold text-sm hover:bg-gray-800 hover:scale-[1.01] active:scale-[0.99] transition-all shadow-lg shadow-black/10">
+                Save Changes
             </button>
         </form>
     </div>
 
-    <!-- Delete Account -->
-    <div class="border-t border-gray-100 pt-8">
-        <h2 class="text-lg font-semibold mb-2 text-red-600">Danger Zone</h2>
-        <p class="text-sm text-gray-500 mb-4">Permanently delete your account and all reminders.</p>
-        <form method="POST" action="/profile/delete" onsubmit="return confirm('Are you sure? This cannot be undone.')">
+    <!-- Change Password -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8 mb-5">
+        <div class="flex items-center gap-3 mb-5">
+            <div class="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+            </div>
+            <div>
+                <h2 class="font-bold text-sm">Change Password</h2>
+                <p class="text-xs text-gray-500">Update your account password</p>
+            </div>
+        </div>
+        <form method="POST" action="/profile/change-password" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Current Password</label>
+                    <input type="password" name="current_password" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">New Password</label>
+                    <input type="password" name="new_password" required minlength="6"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm"
+                        placeholder="Min 6 characters">
+                </div>
+            </div>
             <button type="submit"
-                class="px-6 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-xl font-medium hover:bg-red-100 transition text-sm">
-                Delete Account
+                class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-200 transition">
+                Update Password
+            </button>
+        </form>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="bg-white rounded-2xl border border-red-100 shadow-sm p-6 md:p-8">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+            </div>
+            <div>
+                <h2 class="font-bold text-sm text-red-600">Danger Zone</h2>
+                <p class="text-xs text-gray-500">This action cannot be undone</p>
+            </div>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">Permanently delete your account and all your reminders. This action is irreversible.</p>
+        <form method="POST" action="/profile/delete" onsubmit="return confirm('Are you absolutely sure? This will permanently delete your account and all reminders. This cannot be undone.')">
+            <button type="submit"
+                class="px-6 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-xl font-semibold text-sm hover:bg-red-100 transition">
+                Delete My Account
             </button>
         </form>
     </div>

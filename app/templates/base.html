@@ -5,34 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MemoryBell{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'fade-in-up': 'fadeInUp 0.6s ease-out',
+                        'slide-down': 'slideDown 0.3s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delay': 'float 6s ease-in-out 2s infinite',
+                        'float-slow': 'float 8s ease-in-out 1s infinite',
+                        'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        slideDown: { '0%': { opacity: '0', transform: 'translateY(-10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-12px)' } },
+                        pulseSoft: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.7' } },
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3); }
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        .gradient-border { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1px; border-radius: 1rem; }
+        .gradient-border > * { background: white; border-radius: calc(1rem - 1px); }
+        input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
     </style>
 </head>
-<body class="bg-white text-gray-900 min-h-screen">
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
     <!-- Nav -->
-    <nav class="flex items-center justify-between px-8 py-5 max-w-7xl mx-auto">
-        <div class="flex items-center gap-2">
-            <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="black" stroke-width="2"/><path d="M10 14c0-1 1-2 2-2h8c1 0 2 1 2 2v4c0 3-2.5 5-6 5s-6-2-6-5v-4z" fill="black"/><circle cx="12" cy="15" r="1.5" fill="white"/><circle cx="20" cy="15" r="1.5" fill="white"/><path d="M16 6v3M16 6l-2-2M16 6l2-2" stroke="black" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <span class="font-bold text-lg">MemoryBell</span>
+    <nav class="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50">
+        <div class="flex items-center justify-between px-6 lg:px-8 py-4 max-w-7xl mx-auto">
+            <a href="/" class="group">
+                <span class="text-xl font-black tracking-tight group-hover:opacity-80 transition">Memory<span class="text-violet-600">Bell</span></span>
+            </a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center gap-1">
+                {% if current_user.is_authenticated %}
+                <a href="/dashboard" class="px-4 py-2 text-sm text-gray-600 hover:text-black hover:bg-gray-50 rounded-lg transition">Dashboard</a>
+                <a href="/reminders/create" class="px-4 py-2 text-sm text-gray-600 hover:text-black hover:bg-gray-50 rounded-lg transition">New Reminder</a>
+                <a href="/history" class="px-4 py-2 text-sm text-gray-600 hover:text-black hover:bg-gray-50 rounded-lg transition">History</a>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                {% if current_user.is_authenticated %}
+                    <a href="/profile" class="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition">
+                        <div class="w-5 h-5 bg-gradient-to-br from-violet-400 to-indigo-400 rounded-full"></div>
+                        {{ current_user.name.split(' ')[0] }}
+                    </a>
+                    <a href="/logout" class="px-5 py-2 text-sm rounded-xl bg-black text-white hover:bg-gray-800 transition font-medium">Log Out</a>
+                {% else %}
+                    <a href="/login" class="hidden md:inline-flex px-5 py-2 text-sm rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition font-medium">Log In</a>
+                    <a href="/signup" class="px-5 py-2 text-sm rounded-xl bg-black text-white hover:bg-gray-800 transition font-medium">Get Started</a>
+                {% endif %}
+
+                <!-- Mobile Menu Button -->
+                <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+                </button>
+            </div>
         </div>
-        <div class="hidden md:flex items-center gap-8 text-sm text-gray-600">
-            <a href="/" class="hover:text-black">Home</a>
-            <span class="text-gray-300">.</span>
-            <a href="/dashboard" class="hover:text-black">Dashboard</a>
-            <span class="text-gray-300">.</span>
-            <a href="/reminders/create" class="hover:text-black">New Reminder</a>
-        </div>
-        <div class="flex items-center gap-3">
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-t border-gray-100 bg-white px-6 py-4 space-y-1 animate-slide-down">
             {% if current_user.is_authenticated %}
-                <a href="/profile" class="px-5 py-2.5 text-sm rounded-full border border-gray-200 hover:border-gray-400 transition">Profile</a>
-                <a href="/logout" class="px-5 py-2.5 text-sm rounded-full bg-black text-white hover:bg-gray-800 transition">Log Out</a>
+            <a href="/dashboard" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">Dashboard</a>
+            <a href="/reminders/create" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">New Reminder</a>
+            <a href="/history" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">History</a>
+            <a href="/profile" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">Profile</a>
             {% else %}
-                <a href="/login" class="px-5 py-2.5 text-sm rounded-full border border-gray-200 hover:border-gray-400 transition">Log In</a>
-                <a href="/signup" class="px-5 py-2.5 text-sm rounded-full bg-black text-white hover:bg-gray-800 transition">Get Started</a>
+            <a href="/login" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">Log In</a>
+            <a href="/signup" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">Sign Up</a>
             {% endif %}
         </div>
     </nav>
@@ -40,11 +95,16 @@
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-    <div class="max-w-7xl mx-auto px-8">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 pt-4">
         {% for category, message in messages %}
-        <div class="mb-3 px-5 py-3 rounded-xl text-sm
+        <div class="flash-msg mb-3 px-5 py-3.5 rounded-xl text-sm flex items-center gap-3 animate-slide-down
             {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200
-            {% else %}bg-green-50 text-green-700 border border-green-200{% endif %}">
+            {% else %}bg-emerald-50 text-emerald-700 border border-emerald-200{% endif %}">
+            {% if category == 'error' %}
+            <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+            {% else %}
+            <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+            {% endif %}
             {{ message }}
         </div>
         {% endfor %}
@@ -52,11 +112,39 @@
     {% endif %}
     {% endwith %}
 
-    {% block content %}{% endblock %}
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-100 mt-20 py-8 text-center text-sm text-gray-400">
-        MemoryBell &mdash; Never forget what matters.
+    <footer class="bg-white border-t border-gray-100 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-5 flex items-center justify-between">
+            <span class="text-sm font-black tracking-tight">Memory<span class="text-violet-600">Bell</span></span>
+            <p class="text-xs text-gray-400">Made with ❤️ by <a href="https://bishalde.vercel.app/" target="_blank" rel="noopener noreferrer" class="text-violet-500 hover:text-violet-700 font-medium transition">Bishal</a></p>
+            <div class="flex items-center gap-3">
+                <a href="https://github.com/bishalde" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-black transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://www.linkedin.com/in/bishalde/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-blue-600 transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+                <a href="https://bishalde.vercel.app/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-violet-600 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5a17.92 17.92 0 01-8.716-2.247m0 0A8.966 8.966 0 013 12c0-1.264.26-2.466.733-3.559"/></svg>
+                </a>
+            </div>
+        </div>
     </footer>
+
+    <script>
+        // Auto-dismiss flash messages after 4 seconds
+        setTimeout(function() {
+            document.querySelectorAll('.flash-msg').forEach(function(el) {
+                el.style.transition = 'opacity 0.5s, transform 0.5s';
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-10px)';
+                setTimeout(function() { el.remove(); }, 500);
+            });
+        }, 4000);
+    </script>
 </body>
 </html>

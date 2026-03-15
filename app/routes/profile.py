@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required, current_user
+from flask_login import login_required, current_user, logout_user
 from bson.objectid import ObjectId
 from app import db, bcrypt
 
@@ -12,6 +12,7 @@ def index():
     if request.method == "POST":
         update_data = {
             "name": request.form.get("name", "").strip(),
+            "country_code": request.form.get("country_code", "+1").strip(),
             "phone_number": request.form.get("phone_number", "").strip(),
             "whatsapp_number": request.form.get("whatsapp_number", "").strip(),
             "timezone": request.form.get("timezone", "UTC"),
@@ -25,7 +26,10 @@ def index():
         return redirect(url_for("profile.index"))
 
     user_data = db.users.find_one({"_id": ObjectId(current_user.id)})
-    return render_template("profile.html", user=user_data)
+    user_id = ObjectId(current_user.id)
+    total_reminders = db.reminders.count_documents({"user_id": user_id})
+    total_notifications = db.notifications.count_documents({"user_id": user_id, "status": "sent"})
+    return render_template("profile.html", user=user_data, total_reminders=total_reminders, total_notifications=total_notifications)
 
 
 @profile_bp.route("/profile/change-password", methods=["POST"])
@@ -59,5 +63,6 @@ def delete_account():
     user_id = ObjectId(current_user.id)
     db.reminders.delete_many({"user_id": user_id})
     db.users.delete_one({"_id": user_id})
+    logout_user()
     flash("Account deleted.", "success")
     return redirect(url_for("auth.login"))

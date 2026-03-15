@@ -2,54 +2,81 @@
 {% block title %}Dashboard - MemoryBell{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto px-8 pt-10">
-    <div class="flex items-center justify-between mb-10">
+<div class="max-w-6xl mx-auto px-6 lg:px-8 py-8 animate-fade-in">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-3xl font-bold">Dashboard</h1>
-            <p class="text-gray-500 mt-1">Welcome back, {{ current_user.name }}</p>
+            <h1 class="text-2xl md:text-3xl font-bold">Welcome back, {{ current_user.name.split(' ')[0] }}</h1>
+            <p class="text-gray-500 text-sm mt-1">Here's what's coming up</p>
         </div>
         <a href="/reminders/create"
-            class="px-6 py-2.5 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 transition">
-            + New Reminder
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-black/10">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            New Reminder
         </a>
     </div>
 
-    <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
-        <div class="p-6 rounded-2xl border border-gray-100 bg-white">
-            <p class="text-sm text-gray-500 mb-1">Total Reminders</p>
-            <p class="text-3xl font-bold">{{ total }}</p>
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div class="card-hover p-5 rounded-2xl bg-white border border-gray-100 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                </div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total</p>
+            </div>
+            <p class="text-3xl font-black">{{ total }}</p>
         </div>
-        <div class="p-6 rounded-2xl border border-gray-100 bg-sky-50">
-            <p class="text-sm text-gray-500 mb-1">Today's Reminders</p>
-            <p class="text-3xl font-bold text-sky-600">{{ today_reminders|length }}</p>
+        <div class="card-hover p-5 rounded-2xl bg-amber-50 border border-amber-100 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+                </div>
+                <p class="text-xs font-semibold text-amber-700 uppercase tracking-wide">Today</p>
+            </div>
+            <p class="text-3xl font-black text-amber-700">{{ today_reminders|length }}</p>
         </div>
-        <div class="p-6 rounded-2xl border border-gray-100 bg-emerald-50">
-            <p class="text-sm text-gray-500 mb-1">Upcoming</p>
-            <p class="text-3xl font-bold text-emerald-600">{{ upcoming_reminders|length }}</p>
+        <div class="card-hover p-5 rounded-2xl bg-emerald-50 border border-emerald-100 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                </div>
+                <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Upcoming</p>
+            </div>
+            <p class="text-3xl font-black text-emerald-700">{{ upcoming_reminders|length }}</p>
         </div>
     </div>
 
     <!-- Today's Reminders -->
     {% if today_reminders %}
-    <div class="mb-10">
-        <h2 class="text-lg font-semibold mb-4">Today</h2>
+    <div class="mb-8">
+        <div class="flex items-center gap-2 mb-4">
+            <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+            <h2 class="text-sm font-bold uppercase tracking-wide text-gray-700">Today's Reminders</h2>
+        </div>
         <div class="space-y-3">
             {% for r in today_reminders %}
-            <div class="flex items-center justify-between p-5 rounded-2xl bg-yellow-50 border border-yellow-100">
+            <div class="card-hover flex items-center justify-between p-4 rounded-2xl bg-white border border-amber-100 shadow-sm">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl bg-yellow-200 flex items-center justify-center text-lg">
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl
+                        {% if r.event_type == 'birthday' %}bg-pink-100
+                        {% elif r.event_type == 'anniversary' %}bg-purple-100
+                        {% else %}bg-blue-100{% endif %}">
                         {% if r.event_type == 'birthday' %}&#127874;{% elif r.event_type == 'anniversary' %}&#128141;{% else %}&#128197;{% endif %}
                     </div>
                     <div>
-                        <p class="font-medium">{{ r.event_name }}</p>
-                        <p class="text-xs text-gray-500">{{ r.contact_name }} &middot; {{ r.notify_method }}</p>
+                        <p class="font-semibold text-sm">{{ r.event_name }}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">{{ r.contact_name }}{% if r.contact_name and r.notify_method %} &middot; {% endif %}{{ r.notify_method }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a href="/reminders/{{ r.id }}/edit" class="px-4 py-1.5 text-xs rounded-full border border-gray-200 hover:border-gray-400 transition">Edit</a>
+                    <a href="/reminders/{{ r.id }}/edit" class="p-2 rounded-lg hover:bg-gray-100 transition" title="Edit">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                    </a>
                     <form method="POST" action="/reminders/{{ r.id }}/delete" onsubmit="return confirm('Delete this reminder?')">
-                        <button class="px-4 py-1.5 text-xs rounded-full border border-red-200 text-red-600 hover:bg-red-50 transition">Delete</button>
+                        <button class="p-2 rounded-lg hover:bg-red-50 transition" title="Delete">
+                            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -58,42 +85,89 @@
     </div>
     {% endif %}
 
-    <!-- All Reminders -->
+    <!-- All Reminders Table -->
     <div>
-        <h2 class="text-lg font-semibold mb-4">All Reminders</h2>
+        <h2 class="text-sm font-bold uppercase tracking-wide text-gray-700 mb-4">All Reminders</h2>
         {% if all_reminders %}
-        <div class="overflow-hidden rounded-2xl border border-gray-100">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="text-left px-5 py-3 font-medium text-gray-500">Event</th>
-                        <th class="text-left px-5 py-3 font-medium text-gray-500">Date</th>
-                        <th class="text-left px-5 py-3 font-medium text-gray-500">Type</th>
-                        <th class="text-left px-5 py-3 font-medium text-gray-500">Contact</th>
-                        <th class="text-left px-5 py-3 font-medium text-gray-500">Notify</th>
-                        <th class="px-5 py-3"></th>
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <!-- Mobile card view -->
+            <div class="md:hidden divide-y divide-gray-50">
+                {% for r in all_reminders %}
+                <div class="p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0
+                            {% if r.event_type == 'birthday' %}bg-pink-50
+                            {% elif r.event_type == 'anniversary' %}bg-purple-50
+                            {% else %}bg-blue-50{% endif %}">
+                            {% if r.event_type == 'birthday' %}&#127874;{% elif r.event_type == 'anniversary' %}&#128141;{% else %}&#128197;{% endif %}
+                        </div>
+                        <div>
+                            <p class="font-semibold text-sm">{{ r.event_name }}</p>
+                            <p class="text-xs text-gray-400 mt-0.5">{{ r.date_str }} &middot; {{ r.contact_name }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <a href="/reminders/{{ r.id }}/edit" class="p-2 rounded-lg hover:bg-gray-100 transition">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                        </a>
+                        <form method="POST" action="/reminders/{{ r.id }}/delete" class="inline" onsubmit="return confirm('Delete?')">
+                            <button class="p-2 rounded-lg hover:bg-red-50 transition">
+                                <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Desktop table view -->
+            <table class="hidden md:table w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Event</th>
+                        <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Date</th>
+                        <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Type</th>
+                        <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Contact</th>
+                        <th class="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Notify</th>
+                        <th class="px-5 py-3.5 w-24"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     {% for r in all_reminders %}
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-5 py-4 font-medium">{{ r.event_name }}</td>
+                    <tr class="hover:bg-gray-50/50 transition group">
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0
+                                    {% if r.event_type == 'birthday' %}bg-pink-50
+                                    {% elif r.event_type == 'anniversary' %}bg-purple-50
+                                    {% else %}bg-blue-50{% endif %}">
+                                    {% if r.event_type == 'birthday' %}&#127874;{% elif r.event_type == 'anniversary' %}&#128141;{% else %}&#128197;{% endif %}
+                                </div>
+                                <span class="font-medium">{{ r.event_name }}</span>
+                            </div>
+                        </td>
                         <td class="px-5 py-4 text-gray-500">{{ r.date_str }}</td>
                         <td class="px-5 py-4">
-                            <span class="px-3 py-1 rounded-full text-xs
-                                {% if r.event_type == 'birthday' %}bg-pink-100 text-pink-700
-                                {% elif r.event_type == 'anniversary' %}bg-purple-100 text-purple-700
-                                {% else %}bg-blue-100 text-blue-700{% endif %}">
-                                {{ r.event_type }}
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-medium
+                                {% if r.event_type == 'birthday' %}bg-pink-50 text-pink-700
+                                {% elif r.event_type == 'anniversary' %}bg-purple-50 text-purple-700
+                                {% else %}bg-blue-50 text-blue-700{% endif %}">
+                                {{ r.event_type|capitalize }}
                             </span>
                         </td>
                         <td class="px-5 py-4 text-gray-500">{{ r.contact_name }}</td>
-                        <td class="px-5 py-4 text-gray-500">{{ r.notify_method }}</td>
-                        <td class="px-5 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <a href="/reminders/{{ r.id }}/edit" class="px-3 py-1 text-xs rounded-full border border-gray-200 hover:border-gray-400 transition">Edit</a>
+                        <td class="px-5 py-4">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-600">{{ r.notify_method }}</span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition">
+                                <a href="/reminders/{{ r.id }}/edit" class="p-1.5 rounded-lg hover:bg-gray-100 transition" title="Edit">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                                </a>
                                 <form method="POST" action="/reminders/{{ r.id }}/delete" class="inline" onsubmit="return confirm('Delete?')">
-                                    <button class="px-3 py-1 text-xs rounded-full border border-red-200 text-red-600 hover:bg-red-50 transition">Delete</button>
+                                    <button class="p-1.5 rounded-lg hover:bg-red-50 transition" title="Delete">
+                                        <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                                    </button>
                                 </form>
                             </div>
                         </td>
@@ -103,10 +177,15 @@
             </table>
         </div>
         {% else %}
-        <div class="text-center py-16 rounded-2xl border border-gray-100">
-            <p class="text-gray-400 mb-4">No reminders yet</p>
-            <a href="/reminders/create" class="px-6 py-2.5 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800 transition">
-                Create Your First Reminder
+        <div class="text-center py-20 rounded-2xl bg-white border border-gray-100 shadow-sm">
+            <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+            </div>
+            <p class="text-gray-500 font-medium mb-1">No reminders yet</p>
+            <p class="text-sm text-gray-400 mb-6">Create your first reminder to get started</p>
+            <a href="/reminders/create" class="inline-flex items-center gap-2 px-6 py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                Create Reminder
             </a>
         </div>
         {% endif %}

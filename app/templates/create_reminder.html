@@ -2,76 +2,130 @@
 {% block title %}New Reminder - MemoryBell{% endblock %}
 
 {% block content %}
-<div class="max-w-lg mx-auto mt-12 px-8">
-    <h1 class="text-3xl font-bold mb-2">Create Reminder</h1>
-    <p class="text-gray-500 mb-8">Add a new date to remember</p>
+<div class="max-w-lg mx-auto px-6 py-10 animate-fade-in-up">
+    <!-- Back link -->
+    <a href="/dashboard" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-black transition mb-6">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+        Back to Dashboard
+    </a>
 
-    <form method="POST" class="space-y-5">
-        <div>
-            <label class="block text-sm font-medium mb-1.5">Event Name</label>
-            <input type="text" name="event_name" required
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm"
-                placeholder="Mom's Birthday">
-        </div>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
+        <h1 class="text-xl font-bold mb-1">Create Reminder</h1>
+        <p class="text-gray-500 text-sm mb-6">Add a new date to remember</p>
 
-        <div class="grid grid-cols-2 gap-4">
+        <form method="POST" class="space-y-5">
             <div>
-                <label class="block text-sm font-medium mb-1.5">Event Type</label>
-                <select name="event_type"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm bg-white">
-                    <option value="birthday">Birthday</option>
-                    <option value="anniversary">Anniversary</option>
-                    <option value="custom">Custom</option>
-                </select>
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Event Name</label>
+                <input type="text" name="event_name" required
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm"
+                    placeholder="Mom's Birthday">
             </div>
-            <div>
-                <label class="block text-sm font-medium mb-1.5">Date</label>
-                <input type="date" name="event_date" required
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm">
-            </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Type</label>
+                    <select name="event_type"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm appearance-none cursor-pointer">
+                        <option value="birthday">Birthday</option>
+                        <option value="anniversary">Anniversary</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Date</label>
+                    <input type="date" name="event_date" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm">
+                </div>
+            </div>
+
             <div>
-                <label class="block text-sm font-medium mb-1.5">Contact Name</label>
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Contact Name</label>
                 <input type="text" name="contact_name"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm"
                     placeholder="Sarah">
             </div>
-            <div>
-                <label class="block text-sm font-medium mb-1.5">Contact Phone</label>
-                <input type="tel" name="contact_phone"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm"
-                    placeholder="+1234567890">
-            </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium mb-1.5">Notify By</label>
-                <select name="notify_method"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm bg-white">
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="call">Phone Call</option>
-                    <option value="both">Both</option>
-                </select>
+            <div class="grid grid-cols-5 gap-3">
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Country</label>
+                    <select name="contact_country_code"
+                        class="w-full px-3 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm appearance-none cursor-pointer">
+                        <option value="+1">+1 (US/CA)</option>
+                        <option value="+44">+44 (UK)</option>
+                        <option value="+91" selected>+91 (India)</option>
+                        <option value="+61">+61 (AU)</option>
+                        <option value="+49">+49 (DE)</option>
+                        <option value="+33">+33 (FR)</option>
+                        <option value="+81">+81 (JP)</option>
+                        <option value="+86">+86 (CN)</option>
+                        <option value="+55">+55 (BR)</option>
+                        <option value="+52">+52 (MX)</option>
+                        <option value="+234">+234 (NG)</option>
+                        <option value="+27">+27 (ZA)</option>
+                        <option value="+254">+254 (KE)</option>
+                        <option value="+971">+971 (UAE)</option>
+                        <option value="+966">+966 (SA)</option>
+                        <option value="+82">+82 (KR)</option>
+                        <option value="+39">+39 (IT)</option>
+                        <option value="+34">+34 (ES)</option>
+                        <option value="+62">+62 (ID)</option>
+                        <option value="+63">+63 (PH)</option>
+                        <option value="+66">+66 (TH)</option>
+                        <option value="+65">+65 (SG)</option>
+                        <option value="+60">+60 (MY)</option>
+                        <option value="+92">+92 (PK)</option>
+                        <option value="+880">+880 (BD)</option>
+                        <option value="+94">+94 (LK)</option>
+                        <option value="+977">+977 (NP)</option>
+                    </select>
+                </div>
+                <div class="col-span-3">
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Phone Number</label>
+                    <input type="tel" name="contact_phone"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm"
+                        placeholder="9876543210">
+                </div>
             </div>
-            <div>
-                <label class="block text-sm font-medium mb-1.5">Remind Me</label>
-                <select name="reminder_before"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-black transition text-sm bg-white">
-                    <option value="same_day">Same Day</option>
-                    <option value="1_day_before">1 Day Before</option>
-                    <option value="3_days_before">3 Days Before</option>
-                    <option value="7_days_before">7 Days Before</option>
-                </select>
-            </div>
-        </div>
 
-        <button type="submit"
-            class="w-full py-3 bg-black text-white rounded-xl font-medium hover:bg-gray-800 transition text-sm">
-            Create Reminder
-        </button>
-    </form>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Notify By</label>
+                    <select name="notify_method"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-black transition text-sm appearance-none cursor-pointer">
+                        <option value="sms">SMS</option>
+                        <option value="whatsapp" disabled>WhatsApp (coming soon)</option>
+                        <option value="call" disabled>Phone Call (coming soon)</option>
+                        <option value="both" disabled>SMS + Call (coming soon)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Remind Me (pick multiple)</label>
+                    <div class="space-y-2 mt-1">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="reminder_before" value="same_day" checked class="w-4 h-4 rounded border-gray-300 text-black focus:ring-black">
+                            <span class="text-sm">Same Day</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="reminder_before" value="1_day_before" class="w-4 h-4 rounded border-gray-300 text-black focus:ring-black">
+                            <span class="text-sm">1 Day Before</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="reminder_before" value="3_days_before" class="w-4 h-4 rounded border-gray-300 text-black focus:ring-black">
+                            <span class="text-sm">3 Days Before</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="reminder_before" value="7_days_before" class="w-4 h-4 rounded border-gray-300 text-black focus:ring-black">
+                            <span class="text-sm">7 Days Before</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit"
+                class="w-full py-3 bg-black text-white rounded-xl font-semibold text-sm hover:bg-gray-800 hover:scale-[1.01] active:scale-[0.99] transition-all shadow-lg shadow-black/10">
+                Create Reminder
+            </button>
+        </form>
+    </div>
 </div>
 {% endblock %}
