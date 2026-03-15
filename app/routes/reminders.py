@@ -81,9 +81,12 @@ def edit(reminder_id):
     return render_template("edit_reminder.html", reminder=reminder)
 
 
-@reminders_bp.route("/reminders/<reminder_id>/delete", methods=["POST"])
+@reminders_bp.route("/reminders/<reminder_id>/delete", methods=["GET", "POST"])
 @login_required
 def delete(reminder_id):
+    if request.method == "GET":
+        return redirect(url_for("dashboard.index"))
+
     db.reminders.delete_one({
         "_id": ObjectId(reminder_id),
         "user_id": ObjectId(current_user.id),
