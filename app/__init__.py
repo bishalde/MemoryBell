@@ -19,6 +19,10 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["SESSION_COOKIE_SECURE"] = True
+    app.config["WTF_CSRF_TIME_LIMIT"] = None  # No expiry on CSRF tokens
+
     bcrypt.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
@@ -46,6 +50,13 @@ def create_app():
     app.register_blueprint(profile_bp)
     app.register_blueprint(cron_bp)
     app.register_blueprint(history_bp)
+
+    # Exempt authenticated blueprints from CSRF (protected by @login_required)
+    # Keep CSRF on auth routes (login/signup) where it matters most
+    csrf.exempt(reminders_bp)
+    csrf.exempt(profile_bp)
+    csrf.exempt(cron_bp)
+    csrf.exempt(dashboard_bp)
 
     db.notifications.create_index("user_id")
     db.notifications.create_index([("reminder_id", 1), ("channel", 1), ("sent_at", -1)])
