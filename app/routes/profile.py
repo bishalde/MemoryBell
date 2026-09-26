@@ -76,7 +76,7 @@ def delete_account():
 EXPORT_REMINDER_FIELDS = [
     "event_name", "event_type", "event_date", "year_known", "contact_name",
     "contact_country_code", "contact_phone", "notify_method", "reminder_before",
-    "notes", "paused_until", "created_at",
+    "notes", "recipient_message", "paused_until", "created_at",
 ]
 
 

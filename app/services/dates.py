@@ -67,3 +67,16 @@ def paused_state(reminder, today):
 def skip_until(event_date, today):
     """paused_until value that skips the next occurrence, then resumes."""
     return (next_occurrence(event_date, today) + timedelta(days=1)).isoformat()
+
+
+def next_send(event_date, reminder_before, offsets, today):
+    """The next date a reminder text goes out, given its offset keys (None if none)."""
+    best = None
+    for key in reminder_before or ["same_day"]:
+        days = offsets.get(key, 0)
+        for year in (today.year, today.year + 1, today.year + 2):
+            send_on = occurrence_in(event_date, year) - timedelta(days=days)
+            if send_on >= today:
+                best = send_on if best is None or send_on < best else best
+                break
+    return best

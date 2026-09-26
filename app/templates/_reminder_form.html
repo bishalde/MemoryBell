@@ -83,10 +83,19 @@
                             <input class="input" type="tel" id="contact_phone" name="contact_phone"
                                    value="{{ r.get('contact_phone', '') }}" placeholder="9876543210" inputmode="tel">
                         </div>
-                        <p class="mt-1.5 text-xs text-muted">We never text them. Their number goes in your reminder so you can text or call them in one tap.</p>
+                        <p class="mt-1.5 text-xs text-muted">Add it to text them your message on the day. It’s also in your reminder, so you can call them in one tap.</p>
                     </div>
                     <div>
-                        <label class="label" for="notes">Notes and gift ideas <span class="label-hint">Optional, included in the text</span></label>
+                        <label class="label" for="recipient_message">Message to send them <span class="label-hint">Optional, sent on the day</span></label>
+                        <textarea class="input" id="recipient_message" name="recipient_message" maxlength="300" rows="3"
+                                  placeholder="Happy birthday! Hope you have the best day. Love you.">{{ r.get('recipient_message', '') }}</textarea>
+                        <div class="mt-1.5 flex justify-between gap-3 text-xs">
+                            <p class="text-muted" id="recipient-hint">We sign it with your name so they know it’s from you.</p>
+                            <p class="text-faint tnum shrink-0"><span id="recipient-count">{{ r.get('recipient_message', '')|length }}</span>/300</p>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label" for="notes">Notes and gift ideas <span class="label-hint">Optional, only in your reminder</span></label>
                         <textarea class="input" id="notes" name="notes" maxlength="200" rows="2"
                                   placeholder="Loves orchids. Size M. Allergic to nuts.">{{ r.get('notes', '') }}</textarea>
                         <p class="mt-1.5 text-xs text-faint text-right tnum"><span id="notes-count">{{ r.get('notes', '')|length }}</span>/200</p>
@@ -161,12 +170,30 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-5 rounded-xl bg-sunken p-3.5 text-sm leading-relaxed">
-                    <p class="text-xs text-muted mb-1.5 flex items-center gap-1.5">{{ ui.icon('message', 'w-3.5 h-3.5') }} <span id="pv-when">Text from MemoryBell</span></p>
-                    <p id="pv-sms" class="whitespace-pre-line break-words"></p>
-                </div>
-                <button type="button" class="btn btn-secondary btn-sm btn-block mt-4" id="test-sms">{{ ui.icon('message') }} Send me a test text</button>
-                <p class="mt-2 text-xs text-muted" id="test-sms-status" role="status" aria-live="polite">Sends this text to your own number now.</p>
+                <section class="mt-5" aria-labelledby="pv-me-heading">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <h3 id="pv-me-heading" class="text-sm font-semibold flex items-center gap-1.5">{{ ui.icon('user', 'w-3.5 h-3.5 text-muted') }} To you</h3>
+                        <span class="text-xs text-muted" id="pv-when">Text on the day</span>
+                    </div>
+                    <div class="rounded-xl bg-sunken p-3.5 text-sm leading-relaxed">
+                        <p id="pv-sms" class="whitespace-pre-line break-words"></p>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm btn-block mt-2.5" data-test-target="me">{{ ui.icon('message') }} Send me a test</button>
+                </section>
+
+                <section class="mt-5 pt-5 border-t border-line" aria-labelledby="pv-them-heading">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <h3 id="pv-them-heading" class="text-sm font-semibold flex items-center gap-1.5 min-w-0">{{ ui.icon('heart', 'w-3.5 h-3.5 text-muted') }} <span class="truncate" id="pv-them-name">To them</span></h3>
+                        <span class="text-xs text-muted shrink-0">On the day</span>
+                    </div>
+                    <div class="rounded-xl bg-accent-soft/60 p-3.5 text-sm leading-relaxed" id="pv-wish-box">
+                        <p id="pv-wish" class="whitespace-pre-line break-words"></p>
+                    </div>
+                    <p class="rounded-xl border border-dashed border-line-strong p-3.5 text-sm text-muted" id="pv-wish-empty">Add their number and a message to text them on the day.</p>
+                    <button type="button" class="btn btn-secondary btn-sm btn-block mt-2.5" data-test-target="them" id="test-them">{{ ui.icon('message') }} Send their message to me</button>
+                </section>
+
+                <p class="mt-3 text-xs text-muted" id="test-sms-status" role="status" aria-live="polite">Tests always go to your own number.</p>
             </div>
         </aside>
     </div>
@@ -179,6 +206,7 @@
     var months = {{ ui.MONTHS|tojson }};
     var offsets = { same_day: 0, '1_day_before': 1, '3_days_before': 3, '7_days_before': 7 };
     var firstName = {{ current_user.name.split(' ')[0]|tojson }};
+    var fullName = {{ current_user.name|tojson }};
     var form = document.getElementById('reminder-form');
     var $ = function (id) { return document.getElementById(id); };
 
@@ -224,7 +252,18 @@
         }
 
         $('pv-when').textContent = offset === 0 ? 'Text on the day' : 'First text, ' + (offset === 7 ? '1 week' : offset + (offset === 1 ? ' day' : ' days')) + ' before';
-        $('pv-sms').textContent = SMS.smsText({ firstName: firstName, name: name, contact: contact, type: type, offset: offset, years: years, notes: notes, number: number, dateLabel: dateLabel });
+        var wish = $('recipient_message').value.trim();
+        var willText = !!(wish && number);
+        $('recipient-count').textContent = $('recipient_message').value.length;
+        $('recipient-hint').textContent = wish && !number
+            ? 'Add their phone number above so we can send it.'
+            : 'We sign it with your name so they know it’s from you.';
+        $('pv-them-name').textContent = 'To ' + (contact || 'them');
+        $('pv-wish-box').hidden = !willText;
+        $('pv-wish-empty').hidden = willText;
+        $('test-them').hidden = !wish;
+        $('pv-wish').textContent = SMS.wishText({ fullName: fullName, message: wish });
+        $('pv-sms').textContent = SMS.smsText({ firstName: firstName, name: name, contact: contact, type: type, offset: offset, years: years, notes: notes, number: number, dateLabel: dateLabel, wishTo: willText ? (contact || 'them') : '' });
     }
 
     // Quick-start presets
@@ -242,28 +281,32 @@
         });
     });
 
-    // Send a test text to the user's own number
-    var testBtn = $('test-sms'), status = $('test-sms-status');
-    testBtn.addEventListener('click', function () {
-        if (!$('event_name').value.trim() || !$('event_date').value) {
-            status.textContent = 'Add the occasion and date first.';
-            status.className = 'mt-2 text-xs text-danger';
-            return;
-        }
-        testBtn.disabled = true;
-        status.textContent = 'Sending…';
-        status.className = 'mt-2 text-xs text-muted';
-        fetch('/reminders/test-sms', { method: 'POST', body: new FormData(form), credentials: 'same-origin' })
-            .then(function (res) { return res.json().catch(function () { return { ok: false, error: 'Something went wrong. Try again.' }; }); })
-            .then(function (data) {
-                status.textContent = data.ok ? data.message : data.error;
-                status.className = 'mt-2 text-xs ' + (data.ok ? 'text-ok' : 'text-danger');
-            })
-            .catch(function () {
-                status.textContent = 'Couldn’t reach MemoryBell. Check your connection.';
-                status.className = 'mt-2 text-xs text-danger';
-            })
-            .then(function () { testBtn.disabled = false; });
+    // Test texts: both previews go to the user's own number, never to the other person
+    var status = $('test-sms-status');
+    document.querySelectorAll('[data-test-target]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (!$('event_name').value.trim() || !$('event_date').value) {
+                status.textContent = 'Add the occasion and date first.';
+                status.className = 'mt-3 text-xs text-danger';
+                return;
+            }
+            var data = new FormData(form);
+            data.append('target', btn.dataset.testTarget);
+            btn.disabled = true;
+            status.textContent = 'Sending…';
+            status.className = 'mt-3 text-xs text-muted';
+            fetch('/reminders/test-sms', { method: 'POST', body: data, credentials: 'same-origin' })
+                .then(function (res) { return res.json().catch(function () { return { ok: false, error: 'Something went wrong. Try again.' }; }); })
+                .then(function (res) {
+                    status.textContent = res.ok ? res.message : res.error;
+                    status.className = 'mt-3 text-xs ' + (res.ok ? 'text-ok' : 'text-danger');
+                })
+                .catch(function () {
+                    status.textContent = 'Couldn’t reach MemoryBell. Check your connection.';
+                    status.className = 'mt-3 text-xs text-danger';
+                })
+                .then(function () { btn.disabled = false; });
+        });
     });
 
     form.addEventListener('input', update);

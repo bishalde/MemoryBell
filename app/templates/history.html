@@ -3,67 +3,158 @@
 {% block title %}History · MemoryBell{% endblock %}
 
 {% block content %}
-{% set sms_count = notifications|selectattr('channel', 'equalto', 'sms')|list|length %}
-{% set call_count = notifications|selectattr('channel', 'equalto', 'call')|list|length %}
-{% set wa_count = notifications|selectattr('channel', 'equalto', 'whatsapp')|list|length %}
-{% set failed_count = notifications|rejectattr('status', 'equalto', 'sent')|list|length %}
-{% set channel_icon = {'sms': 'message', 'call': 'phone', 'whatsapp': 'whatsapp'} %}
-{% set channel_name = {'sms': 'SMS', 'call': 'Call', 'whatsapp': 'WhatsApp'} %}
+{% set channel_icon = {'sms': 'message', 'call': 'phone', 'whatsapp': 'whatsapp', 'wish': 'heart'} %}
+{% set channel_name = {'sms': 'SMS', 'call': 'Call', 'whatsapp': 'WhatsApp', 'wish': 'SMS'} %}
+{% set badge_class = {'delivered': 'badge-ok', 'failed': 'badge-danger', 'pending': 'badge-warn', 'sent': ''} %}
+{% set badge_icon = {'delivered': 'check', 'failed': 'x', 'pending': 'clock', 'sent': 'check'} %}
+{% set to_them = notifications|selectattr('channel', 'equalto', 'wish')|list|length %}
+{% set failed_loaded = notifications|selectattr('info.state', 'equalto', 'failed')|list|length %}
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-    <div class="mb-8">
-        <h1 class="text-3xl sm:text-4xl font-semibold">History</h1>
-        <p class="mt-2 text-muted">Every reminder we’ve sent you, newest first.</p>
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl sm:text-4xl font-semibold">History</h1>
+            <p class="mt-2 text-muted">Every text we’ve sent, and whether it arrived.</p>
+        </div>
+        {% if notifications %}
+        <form method="POST" action="/history/refresh">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button class="btn btn-secondary btn-sm">{{ ui.icon('history') }} Refresh statuses</button>
+        </form>
+        {% endif %}
     </div>
 
-    {% if notifications %}
-    <div class="flex flex-wrap gap-2 mb-4" role="toolbar" aria-label="Filter history">
-        {% set filters = [('all', 'All', notifications|length), ('sms', 'SMS', sms_count), ('call', 'Calls', call_count), ('whatsapp', 'WhatsApp', wa_count), ('failed', 'Failed', failed_count)] %}
-        {% for key, label, count in filters %}
-        {% if key == 'all' or count %}
-        <button type="button" class="btn btn-sm {{ 'btn-secondary' if key == 'all' else 'btn-ghost' }}" data-filter="{{ key }}" aria-pressed="{{ 'true' if key == 'all' else 'false' }}">
-            {{ label }} <span class="text-faint tnum">{{ count }}</span>
-        </button>
-        {% endif %}
+    {% if total %}
+    <section class="panel grid grid-cols-2 md:grid-cols-4 mb-6" aria-label="Summary for {{ stats.year }}">
+        <div class="p-4 sm:p-5 border-b md:border-b-0 border-r border-line">
+            <p class="text-xs text-muted">Sent in {{ stats.year }}</p>
+            <p class="mt-1 font-display text-2xl font-semibold tnum">{{ stats.sent }}</p>
+        </div>
+        <div class="p-4 sm:p-5 border-b md:border-b-0 md:border-r border-line">
+            <p class="text-xs text-muted">Delivered</p>
+            <p class="mt-1 font-display text-2xl font-semibold tnum text-ok">{{ stats.delivered }}</p>
+        </div>
+        <div class="p-4 sm:p-5 border-r border-line">
+            <p class="text-xs text-muted">Failed</p>
+            <p class="mt-1 font-display text-2xl font-semibold tnum {% if stats.failed %}text-danger{% endif %}">{{ stats.failed }}</p>
+        </div>
+        <div class="p-4 sm:p-5 min-w-0">
+            <p class="text-xs text-muted">Next text</p>
+            {% if next_text %}
+            <p class="mt-1 font-semibold tnum">{{ next_text[0].strftime('%b %-d') }}</p>
+            <p class="text-xs text-muted truncate">{{ next_text[1].event_name }}</p>
+            {% else %}
+            <p class="mt-1 text-sm text-muted">Nothing scheduled</p>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if recent_failed %}
+    <div class="mb-6 flex items-start gap-3 rounded-xl border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger">
+        {{ ui.icon('alert', 'mt-0.5 shrink-0') }}
+        <p><strong class="font-semibold">{{ recent_failed }} {{ 'text' if recent_failed == 1 else 'texts' }} failed in the last 30 days.</strong>
+            {% if top_reason %}Most common reason: {{ top_reason|lower }}.{% endif %} Open a failed entry to see what to do.</p>
+    </div>
+    {% endif %}
+    {% if stats.pending %}
+    <p class="mb-6 text-xs text-muted">{{ stats.pending }} {{ 'text is' if stats.pending == 1 else 'texts are' }} waiting for a delivery report. Press Refresh statuses to check with Twilio.</p>
+    {% endif %}
+
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+        <div class="input-wrap sm:w-64">
+            {{ ui.icon('search') }}
+            <input class="input has-icon h-9" type="search" id="history-search" placeholder="Search name or occasion" aria-label="Search history">
+        </div>
+        <div class="flex flex-wrap gap-1.5" role="toolbar" aria-label="Filter history">
+            {% set filters = [('all', 'All', notifications|length), ('me', 'To you', notifications|length - to_them), ('them', 'To them', to_them), ('failed', 'Failed', failed_loaded)] %}
+            {% for key, label, count in filters %}
+            {% if key == 'all' or count %}
+            <button type="button" class="btn btn-sm {{ 'btn-secondary' if key == 'all' else 'btn-ghost' }}" data-filter="{{ key }}" aria-pressed="{{ 'true' if key == 'all' else 'false' }}">
+                {{ label }} <span class="text-faint tnum">{{ count }}</span>
+            </button>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="space-y-6" id="history-list">
+        {% for month, items in groups %}
+        <section class="panel" data-month>
+            <h2 class="panel-header text-sm font-semibold">{{ month }}</h2>
+            <div class="divide-line">
+                {% for n in items %}
+                {% set info = n.info %}
+                {% set is_them = n.channel == 'wish' %}
+                <details class="history-row" data-to="{{ 'them' if is_them else 'me' }}" data-state="{{ info.state }}"
+                         data-search="{{ (n.event_name ~ ' ' ~ (n.contact_name or ''))|lower }}">
+                    <summary class="flex items-center gap-3 px-5 py-3.5">
+                        <span class="grid place-items-center w-8 h-8 rounded-lg shrink-0 {{ 'bg-accent-soft text-accent' if is_them else 'bg-sunken text-muted' }}" title="{{ channel_name.get(n.channel, n.channel) }}">
+                            {{ ui.icon(channel_icon.get(n.channel, 'bell')) }}
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <p class="font-medium truncate">{{ n.event_name }}</p>
+                            <p class="text-xs text-muted truncate">
+                                {% if is_them %}Your message to {{ n.contact_name or 'them' }}{% else %}Reminder to you{% endif %}{% if n.channel in ('call', 'whatsapp') %} by {{ channel_name[n.channel] }}{% endif %},
+                                <span class="tnum">{{ n.sent_at_str }}</span>
+                            </p>
+                        </div>
+                        <span class="badge {{ badge_class[info.state] }} shrink-0" {% if info.reason %}title="{{ info.reason }}"{% endif %}>{{ ui.icon(badge_icon[info.state]) }} {{ info.label }}</span>
+                        <span class="history-row__chev text-faint shrink-0 hidden sm:block">{{ ui.icon('plus') }}</span>
+                    </summary>
+                    <div class="px-5 pb-5 sm:pl-16 space-y-3">
+                        {% if info.state == 'failed' %}
+                        <div class="rounded-xl border border-danger/25 bg-danger-soft px-3.5 py-3 text-sm">
+                            <p class="font-semibold text-danger">{{ info.reason }}{% if info.code %} <span class="font-normal opacity-70 tnum">(error {{ info.code }})</span>{% endif %}</p>
+                            <p class="mt-0.5 text-ink/80">{{ info.hint }}
+                                {% if info.fix == 'number' %}
+                                    {% if is_them and n.reminder_id_str %}<a href="/reminders/{{ n.reminder_id_str }}/edit" class="underline underline-offset-2">Edit their number</a>
+                                    {% else %}<a href="/profile" class="underline underline-offset-2">Check your number</a>{% endif %}
+                                {% elif info.fix == 'twilio' %}<a href="https://console.twilio.com/" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2">Open Twilio console</a>{% endif %}
+                            </p>
+                        </div>
+                        {% elif info.state != 'delivered' and info.reason %}
+                        <p class="text-xs text-muted">{{ info.reason }}.</p>
+                        {% endif %}
+
+                        {% if n.body %}
+                        <p class="rounded-xl bg-sunken px-3.5 py-3 text-sm leading-relaxed whitespace-pre-line break-words">{{ n.body }}</p>
+                        {% elif n.channel != 'call' %}
+                        <p class="text-sm text-muted">The text wasn’t saved for older messages.</p>
+                        {% endif %}
+
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted">
+                            <span>Sent to <span class="tnum">{{ n.phone }}</span></span>
+                            {% if n.reminder_id_str %}<a href="/reminders/{{ n.reminder_id_str }}/edit" class="underline underline-offset-2 hover:text-ink">Open reminder</a>{% endif %}
+                            {% if n.id in can_resend_ids %}
+                            <form method="POST" action="/history/{{ n.id }}/resend" class="ml-auto" onsubmit="return confirm('Send this text again to {{ n.phone }}? It uses one message.')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button class="btn btn-secondary btn-sm">{{ ui.icon('message') }} Resend</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </details>
+                {% endfor %}
+            </div>
+        </section>
         {% endfor %}
     </div>
+    <p class="hidden panel px-5 py-10 text-center text-sm text-muted" id="history-empty">Nothing matches. Try another name or filter.</p>
 
-    <section class="panel overflow-hidden">
-        <div class="hidden md:grid grid-cols-[1.5fr_1fr_1fr_5.5rem_12rem] gap-4 px-5 py-2.5 border-b border-line text-xs font-medium text-muted bg-sunken/50">
-            <span>Reminder</span><span>Contact</span><span>Sent to</span><span>Status</span><span class="text-right">When</span>
-        </div>
-        <ul class="divide-line" id="history-list">
-            {% for n in notifications %}
-            {% set ok = n.status == 'sent' %}
-            <li class="px-5 py-3.5 grid grid-cols-[auto_1fr_auto] md:grid-cols-[1.5fr_1fr_1fr_5.5rem_12rem] gap-x-3 md:gap-4 items-center hover:bg-sunken/60 transition-colors"
-                data-channel="{{ n.channel }}" data-failed="{{ 'false' if ok else 'true' }}">
-                <div class="flex items-center gap-3 min-w-0 md:col-auto">
-                    <span class="grid place-items-center w-8 h-8 rounded-lg bg-sunken text-muted shrink-0" title="{{ channel_name.get(n.channel, n.channel) }}">
-                        {{ ui.icon(channel_icon.get(n.channel, 'bell')) }}
-                    </span>
-                    <span class="font-medium truncate hidden md:inline">{{ n.event_name }}</span>
-                </div>
-                <div class="min-w-0 md:hidden">
-                    <p class="font-medium truncate">{{ n.event_name }}</p>
-                    <p class="text-xs text-muted truncate">{{ channel_name.get(n.channel, n.channel) }}{% if n.contact_name %}, {{ n.contact_name }}{% endif %}, {{ n.sent_at_str }}</p>
-                </div>
-                <span class="hidden md:block text-sm text-muted truncate">{{ n.contact_name or '—' }}</span>
-                <span class="hidden md:block text-sm text-muted tnum truncate">{{ n.phone }}</span>
-                <span>
-                    {% if ok %}<span class="badge badge-ok">{{ ui.icon('check') }} Sent</span>
-                    {% else %}<span class="badge badge-danger">{{ ui.icon('x') }} Failed</span>{% endif %}
-                </span>
-                <span class="hidden md:block text-sm text-muted text-right tnum">{{ n.sent_at_str }}</span>
-            </li>
-            {% endfor %}
-        </ul>
-        <p class="hidden px-5 py-10 text-center text-sm text-muted" id="history-empty">Nothing matches this filter.</p>
-    </section>
+    {% if total > notifications|length %}
+    <div class="mt-6 text-center">
+        <a href="/history?limit={{ next_limit }}" class="btn btn-secondary btn-sm">Show more</a>
+        <p class="mt-2 text-xs text-muted tnum">Showing {{ notifications|length }} of {{ total }}</p>
+    </div>
+    {% endif %}
     {% else %}
     <section class="panel px-6 py-16 text-center">
         <span class="grid place-items-center w-12 h-12 mx-auto mb-4 rounded-xl bg-sunken text-muted">{{ ui.icon('inbox', 'w-5 h-5') }}</span>
         <h2 class="text-xl font-semibold">Nothing sent yet</h2>
-        <p class="mt-1.5 text-muted max-w-sm mx-auto">When a reminder goes out, you’ll see it here with its delivery status.</p>
+        <p class="mt-1.5 text-muted max-w-sm mx-auto">
+            {% if next_text %}Your first text goes out on {{ next_text[0].strftime('%B %-d') }}, for {{ next_text[1].event_name }}. It’ll show up here with its delivery status.
+            {% else %}When a reminder goes out, you’ll see it here with its delivery status.{% endif %}
+        </p>
         <a href="/dashboard" class="btn btn-secondary mt-6">View your reminders</a>
     </section>
     {% endif %}
@@ -74,25 +165,37 @@
 <script>
 (function () {
     var buttons = document.querySelectorAll('[data-filter]');
-    var rows = document.querySelectorAll('#history-list > li');
+    var rows = document.querySelectorAll('.history-row');
+    var months = document.querySelectorAll('[data-month]');
+    var search = document.getElementById('history-search');
     var empty = document.getElementById('history-empty');
+    if (!search) return;
+    var filter = 'all';
+
+    function apply() {
+        var q = search.value.trim().toLowerCase(), visible = 0;
+        rows.forEach(function (row) {
+            var match = filter === 'all' || (filter === 'failed' ? row.dataset.state === 'failed' : row.dataset.to === filter);
+            if (q && row.dataset.search.indexOf(q) === -1) match = false;
+            row.hidden = !match;
+            if (match) visible++;
+        });
+        months.forEach(function (m) { m.hidden = !m.querySelector('.history-row:not([hidden])'); });
+        empty.classList.toggle('hidden', visible > 0);
+    }
     buttons.forEach(function (btn) {
         btn.addEventListener('click', function () {
-            var f = btn.dataset.filter, visible = 0;
+            filter = btn.dataset.filter;
             buttons.forEach(function (b) {
                 var on = b === btn;
                 b.setAttribute('aria-pressed', on);
                 b.classList.toggle('btn-secondary', on);
                 b.classList.toggle('btn-ghost', !on);
             });
-            rows.forEach(function (row) {
-                var show = f === 'all' || (f === 'failed' ? row.dataset.failed === 'true' : row.dataset.channel === f);
-                row.hidden = !show;
-                if (show) visible++;
-            });
-            empty.classList.toggle('hidden', visible > 0);
+            apply();
         });
     });
+    search.addEventListener('input', apply);
 })();
 </script>
 {% endblock %}

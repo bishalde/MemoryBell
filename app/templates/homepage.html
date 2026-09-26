@@ -49,7 +49,7 @@
                     <p class="phone__time">Jun 7, 9:00 AM</p>
                     <p class="bubble">Your wedding anniversary is <b>in 1 week</b>!<br>It’s the 25th anniversary!<br>Plan something memorable together!</p>
                     <p class="phone__time">Today, 9:00 AM</p>
-                    <p class="bubble">Sarah’s birthday is <b>TODAY</b>!<br>Note: loves orchids, size M<br>Text or call Sarah: <u>+91 98765 43210</u></p>
+                    <p class="bubble">Sarah’s birthday is <b>TODAY</b>!<br>Note: loves orchids, size M<br>We’re texting your message to Sarah today. 💌</p>
                     <p class="typing"><span></span><span></span><span></span></p>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="label" for="try-contact">Who</label>
-                        <input class="input" id="try-contact" value="Mom" autocomplete="off">
+                        <input class="input" id="try-contact" value="Bishal" autocomplete="off">
                     </div>
                     <div>
                         <label class="label" for="try-date">Date</label>
@@ -100,7 +100,7 @@
                         <span class="date-tile__day" id="try-day">?</span>
                     </span>
                     <div class="min-w-0">
-                        <p class="font-semibold truncate" id="try-title">Mom’s birthday</p>
+                        <p class="font-semibold truncate" id="try-title">Bishal’s birthday</p>
                         <div class="mt-1.5 flex flex-wrap gap-1.5">
                             <span class="badge countdown tnum" id="try-count"></span>
                             <span class="badge badge-accent" id="try-milestone" hidden></span>
@@ -124,7 +124,7 @@
         <ol class="mt-12 grid md:grid-cols-3 gap-px bg-line rounded-2xl overflow-hidden border border-line">
             {% for title, body in [
                 ('Create an account', 'Sign up with your email and confirm your phone number with a one-time code.'),
-                ('Add your dates', 'Birthdays, anniversaries, anything yearly. Add a gift idea or their number if you like.'),
+                ('Add your dates', 'Birthdays, anniversaries, anything yearly. Add a gift idea, or a message to text them on the day.'),
                 ('Get a text', 'On the day, or up to a week ahead. Sent to your phone, every year, automatically.'),
             ] %}
             <li class="bg-surface p-7">
@@ -138,7 +138,7 @@
 </section>
 
 {# ---------- Features ---------- #}
-<section class="border-t border-line bg-surface/50">
+<section id="features" class="border-t border-line bg-surface/50 scroll-mt-16">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
         <h2 class="text-3xl sm:text-4xl font-semibold max-w-xl">Everything you’d forget, kept for you.</h2>
         <p class="mt-3 text-muted max-w-md leading-relaxed">No app to install and no feed to check. Just the right message on your phone when it matters.</p>
@@ -160,10 +160,10 @@
 
             <article class="feature">
                 <div class="feature__art">
-                    <p class="bubble bubble--static">Text or call Sarah: <u>+91 98765 43210</u></p>
+                    <p class="bubble bubble--static">Happy birthday, Baba! Love you.<br><span class="text-muted text-xs">(Sent by Bishal De via MemoryBell)</span></p>
                 </div>
-                <h3 class="feature__title">One tap to reach them</h3>
-                <p class="feature__body">Add their number and it’s in your reminder. We only ever text you.</p>
+                <h3 class="feature__title">Text them on the day</h3>
+                <p class="feature__body">Write your wish once. We send it to them on the day, signed with your name, and remind you too.</p>
             </article>
 
             <article class="feature">
@@ -214,7 +214,7 @@
 </section>
 
 {# ---------- FAQ ---------- #}
-<section class="max-w-6xl mx-auto px-4 sm:px-6 py-20 grid md:grid-cols-[1fr_1.6fr] gap-10">
+<section id="faq" class="max-w-6xl mx-auto px-4 sm:px-6 py-20 grid md:grid-cols-[1fr_1.6fr] gap-10 scroll-mt-16">
     <div>
         <h2 class="text-3xl sm:text-4xl font-semibold">Questions</h2>
         <p class="mt-3 text-muted">Anything else? <a href="https://bishalde.vercel.app/" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 hover:text-ink">Get in touch</a>.</p>
@@ -222,7 +222,7 @@
     <div class="faq">
         {% for q, a in [
             ('Is it free?', 'Yes. Every account can keep up to 5 dates, and there’s no card to enter.'),
-            ('Do you text the other person?', 'Never. Every reminder goes to your phone. If you add their number, it’s included in your text so you can reach them in one tap.'),
+            ('Do you text the other person?', 'Only if you want to. Reminders always come to you. Add their number and a message, and we’ll text it to them on the day, signed with your name.'),
             ('Which countries work?', 'More than 30, including India, the US, the UK and Australia. Pick your country code when you sign up.'),
             ('Can I pause a reminder?', 'Yes. Skip it for one year and it comes back on its own, or pause it until you turn it back on.'),
             ('Can I take my data with me?', 'Any time. Download your reminders and text history from your profile as JSON or CSV.'),
@@ -276,8 +276,7 @@
 
     // Try it: live preview built exactly like the real text
     var form = $('try-form');
-    var d = new Date(); d.setDate(d.getDate() + 1);
-    $('try-date').value = (d.getFullYear() - 60) + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    $('try-date').value = '2003-04-10';
 
     function update() {
         var contact = $('try-contact').value.trim();

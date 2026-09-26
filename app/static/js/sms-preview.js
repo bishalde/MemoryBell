@@ -35,7 +35,7 @@
         return days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : 'In ' + days + ' days';
     }
 
-    // o: { firstName, name, contact, type, offset, years, notes, number, dateLabel }
+    // o: { firstName, name, contact, type, offset, years, notes, number, dateLabel, wishTo }
     function smsText(o) {
         var label = { birthday: 'birthday', anniversary: 'anniversary' }[o.type] || 'event';
         var contact = o.contact || 'Someone special';
@@ -60,10 +60,17 @@
             'Date: ' + (o.dateLabel || 'your date') + '\n' + marksLine + '\n' +
             (o.notes ? 'Note: ' + o.notes + '\n\n' : '') +
             (o.number ? 'Text or call ' + (o.contact || 'them') + ': ' + o.number + '\n\n' : '') +
+            (o.wishTo && o.offset === 0 ? 'We\u2019re texting your message to ' + o.wishTo + ' today.\n\n' : '') +
             when[1] + ' ' + tip;
     }
 
+    // Mirrors _build_recipient_message() in app/services/scheduler.py
+    function wishText(o) {
+        return (o.message || '') + '\n\n(Sent by ' + (o.fullName || 'you') + ' via MemoryBell)';
+    }
+
     window.MemoryBellSMS = {
+        wishText: wishText,
         ordinal: ordinal, milestone: milestone, nextOccurrence: nextOccurrence,
         dateLabel: dateLabel, countdown: countdown, smsText: smsText
     };

@@ -9,8 +9,9 @@ from app.services.dates import parse_event_date, occurrence_in, years_at, milest
 MAX_WORKERS = 20  # parallel Twilio API calls
 
 
-def _log_notification(user_id, reminder_id, event_name, contact_name, channel, status, phone):
-    db.notifications.insert_one({
+def _log_notification(user_id, reminder_id, event_name, contact_name, channel, status, phone,
+                      sid=None, body=None, error_code=None):
+    doc = {
         "user_id": user_id,
         "reminder_id": reminder_id,
         "event_name": event_name,
@@ -19,7 +20,15 @@ def _log_notification(user_id, reminder_id, event_name, contact_name, channel, s
         "status": status,
         "phone": phone,
         "sent_at": datetime.now(timezone.utc),
-    })
+    }
+    if sid:
+        doc["sid"] = sid
+        doc["delivery_status"] = "queued"
+    if body is not None and channel != "call":
+        doc["body"] = body
+    if error_code is not None:
+        doc["error_code"] = error_code
+    db.notifications.insert_one(doc)
 
 
 def _already_sent_today(reminder_id, channel):
@@ -138,7 +147,7 @@ def _build_whatsapp_message(user_name, contact_name, event_name, event_type, eve
 
 
 def _build_sms_message(user_name, contact_name, event_name, event_type, event_date_str, offset_days,
-                       years=None, notes="", contact_number=""):
+                       years=None, notes="", contact_number="", wish_to=""):
     event_label = EVENT_TYPE_LABELS.get(event_type, "event")
     name = user_name.split(' ')[0]
     contact = contact_name if contact_name else "Someone special"
@@ -153,6 +162,7 @@ def _build_sms_message(user_name, contact_name, event_name, event_type, event_da
         marks_line = f"It's been {marks}!\n"
     note_line = f"Note: {notes}\n\n" if notes else ""
     number_line = f"Text or call {contact_name or 'them'}: {contact_number}\n\n" if contact_number else ""
+    wish_line = f"We're texting your message to {wish_to} today.\n\n" if wish_to and offset_days == 0 else ""
 
     if offset_days == 0:
         time_phrase = "TODAY"
@@ -187,25 +197,33 @@ def _build_sms_message(user_name, contact_name, event_name, event_type, event_da
         f"{marks_line}\n"
         f"{note_line}"
         f"{number_line}"
+        f"{wish_line}"
         f"{urgency} {tip}\n\n"
         f"- MemoryBell"
     )
 
 
+def _build_recipient_message(user_name, message):
+    """The user's own message to the other person, signed so they know who it's from."""
+    return f"{message}\n\n(Sent by {user_name} via MemoryBell)"
+
+
 def _send_single(channel, contact_phone, message, uid, rid, event_name, contact_name):
     """Send a single notification. Returns (channel, success)."""
+    sid = None
     try:
         if channel == "whatsapp":
-            send_whatsapp_reminder(contact_phone, message)
-        elif channel == "sms":
-            send_sms_reminder(contact_phone, message)
+            sid = send_whatsapp_reminder(contact_phone, message)
+        elif channel in ("sms", "wish"):
+            sid = send_sms_reminder(contact_phone, message)
         elif channel == "call":
-            send_call_reminder(contact_phone, message)
+            sid = send_call_reminder(contact_phone, message)
 
-        _log_notification(uid, rid, event_name, contact_name, channel, "sent", contact_phone)
+        _log_notification(uid, rid, event_name, contact_name, channel, "sent", contact_phone, sid=sid, body=message)
         return (channel, True)
     except Exception as e:
-        _log_notification(uid, rid, event_name, contact_name, channel, f"failed: {e}", contact_phone)
+        _log_notification(uid, rid, event_name, contact_name, channel, f"failed: {e}", contact_phone,
+                          body=message, error_code=getattr(e, "code", None))
         print(f"Failed {channel} for reminder {rid}: {e}")
         return (channel, False)
 
@@ -281,6 +299,15 @@ def check_and_send_reminders():
         if isinstance(reminder_before, str):
             reminder_before = [reminder_before]
 
+        recipient_message = (reminder.get("recipient_message") or "").strip()
+        contact_number = _full_number(reminder.get("contact_country_code", "+91"), reminder.get("contact_phone", ""))
+        wish_today = bool(recipient_message and contact_number) and occurrence_in(event_date, today.year) == today
+        if wish_today and not _already_sent_today(reminder["_id"], "wish"):
+            tasks.append((
+                "wish", contact_number, _build_recipient_message(user["name"], recipient_message),
+                reminder["user_id"], reminder["_id"], reminder["event_name"], reminder.get("contact_name", ""),
+            ))
+
         # Check if any offset matches today
         match = _match_reminder_offset(event_date, today, reminder_before)
         if not match:
@@ -298,10 +325,9 @@ def check_and_send_reminders():
         notes = reminder.get("notes", "")
 
         notify_method = reminder.get("notify_method", "sms")
-        # Reminders always go to the account's own number. The recipient's
-        # number is only included in the text so the user can reach them.
+        # Reminders always go to the account's own number. The other person only
+        # gets the user's own message on the day (queued above).
         to_phone = _full_number(user.get("country_code", "+1"), user.get("phone_number", ""))
-        contact_number = _full_number(reminder.get("contact_country_code", "+91"), reminder.get("contact_phone", ""))
 
         if not to_phone:
             continue
@@ -331,6 +357,7 @@ def check_and_send_reminders():
                     user["name"], contact_name, event_name,
                     event_type, event_date_display, offset_days,
                     years=years, notes=notes, contact_number=contact_number,
+                    wish_to=(contact_name or "them") if wish_today else "",
                 )
             elif channel == "call":
                 msg = _build_call_message(
