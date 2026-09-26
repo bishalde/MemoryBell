@@ -820,3 +820,16 @@ textarea.input { height: auto; min-height: 5.5rem; padding: .7rem .875rem; line-
 .footer-links a:hover { color: rgb(var(--ink)); }
 .footer-links a:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 2px; border-radius: 4px; }
 .footer-heart { display: inline-block; width: .9em; height: .9em; margin: 0 .1em; vertical-align: -.1em; color: rgb(var(--accent)); }
+
+/* Phones */
+.preset-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+.year-strip__dot { position: relative; }
+.year-strip__dot::after { content: ""; position: absolute; inset: -3px -8px; }
+@media (max-width: 639px) {
+    /* 16px stops iOS Safari zooming in when a field is tapped */
+    .input, textarea.input { font-size: 16px; }
+    /* Presets scroll sideways instead of stacking six rows deep */
+    .preset-row { flex-wrap: nowrap; overflow-x: auto; margin: 0 -1.25rem; padding: 0 1.25rem .25rem; scrollbar-width: none; scroll-snap-type: x proximity; }
+    .preset-row::-webkit-scrollbar { display: none; }
+    .preset-row .preset { flex-shrink: 0; white-space: nowrap; scroll-snap-align: start; }
+}
