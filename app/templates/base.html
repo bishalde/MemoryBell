@@ -1,20 +1,18 @@
 {% import "_macros.html" as ui %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#FDF7F4" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0D1421" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#FDF7F4">
     <title>{% block title %}MemoryBell{% endblock %}</title>
     <meta name="description" content="MemoryBell reminds you of birthdays, anniversaries and the dates you care about, by text message.">
     <script>
         // Apply the saved theme before first paint to avoid a flash
         (function () {
             try {
-                var t = localStorage.getItem('mb-theme');
-                if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                document.documentElement.dataset.theme = t;
+                // Light by default; dark only if the visitor picked it
+                if (localStorage.getItem('mb-theme') === 'dark') document.documentElement.dataset.theme = 'dark';
             } catch (e) {}
         })();
     </script>

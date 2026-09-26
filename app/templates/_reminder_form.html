@@ -16,7 +16,7 @@
 <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
     <div class="mb-6">{{ ui.back_link() }}</div>
 
-    <div class="grid lg:grid-cols-[1fr_19rem] gap-8 items-start">
+    <div class="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_19rem] gap-8 items-start">
         <div>
             <h1 class="text-3xl font-semibold">{{ heading }}</h1>
             <p class="mt-1.5 text-muted">{{ subheading }}</p>
@@ -28,7 +28,7 @@
                 {% if show_presets %}
                 <div class="p-5 sm:p-6" role="group" aria-labelledby="presets-label">
                     <p class="label" id="presets-label">Start from <span class="label-hint">Fills in the form, change anything after</span></p>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="preset-row">
                         {% for name, type, contact, when in presets %}
                         <button type="button" class="preset" aria-pressed="false" data-preset='{{ {"name": name, "type": type, "contact": contact, "when": when}|tojson }}'>
                             <span class="type-dot" data-type="{{ type }}"></span>{{ name }}
@@ -76,7 +76,7 @@
                     </div>
                     <div>
                         <label class="label" for="contact_phone">Their phone number <span class="label-hint">Optional</span></label>
-                        <div class="grid grid-cols-[minmax(0,11.5rem)_1fr] gap-2">
+                        <div class="grid grid-cols-[8.5rem_1fr] sm:grid-cols-[minmax(0,11.5rem)_1fr] gap-2">
                             <select class="input" name="contact_country_code" aria-label="Country code">
                                 {{ ui.country_options(r.get('contact_country_code', current_user.country_code or '+91')) }}
                             </select>

@@ -139,7 +139,7 @@
 {%- endmacro %}
 
 {% macro back_link(href='/dashboard', text='Dashboard') -%}
-<a href="{{ href }}" class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink transition-colors">
+<a href="{{ href }}" class="inline-flex items-center gap-1.5 py-2 -my-2 text-sm text-muted hover:text-ink transition-colors">
     {{ icon('arrow-left') }} {{ text }}
 </a>
 {%- endmacro %}

@@ -124,7 +124,7 @@
 
                         <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted">
                             <span>Sent to <span class="tnum">{{ n.phone }}</span></span>
-                            {% if n.reminder_id_str %}<a href="/reminders/{{ n.reminder_id_str }}/edit" class="underline underline-offset-2 hover:text-ink">Open reminder</a>{% endif %}
+                            {% if n.reminder_id_str %}<a href="/reminders/{{ n.reminder_id_str }}/edit" class="inline-block py-2 -my-2 underline underline-offset-2 hover:text-ink">Open reminder</a>{% endif %}
                             {% if n.id in can_resend_ids %}
                             <form method="POST" action="/history/{{ n.id }}/resend" class="ml-auto" onsubmit="return confirm('Send this text again to {{ n.phone }}? It uses one message.')">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
