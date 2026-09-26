@@ -1,150 +1,234 @@
+{% import "_macros.html" as ui %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FDF7F4" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0D1421" media="(prefers-color-scheme: dark)">
     <title>{% block title %}MemoryBell{% endblock %}</title>
+    <meta name="description" content="MemoryBell reminds you of birthdays, anniversaries and the dates you care about, by text message.">
+    <script>
+        // Apply the saved theme before first paint to avoid a flash
+        (function () {
+            try {
+                var t = localStorage.getItem('mb-theme');
+                if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.dataset.theme = t;
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23F22F46'/%3E%3Cpath transform='translate(4 4) rotate(16 12 3)' fill='%23FDF7F4' d='M12 2.5a1.6 1.6 0 0 1 1.6 1.6v.5A6.2 6.2 0 0 1 18.2 10.7V15l1.7 2.3a.9.9 0 0 1-.7 1.4H4.8a.9.9 0 0 1-.7-1.4L5.8 15v-4.3a6.2 6.2 0 0 1 4.6-6.1v-.5A1.6 1.6 0 0 1 12 2.5ZM9.7 20.2h4.6a2.3 2.3 0 0 1-4.6 0Z'/%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        const tone = (v) => `rgb(var(--${v}) / <alpha-value>)`;
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-out',
-                        'fade-in-up': 'fadeInUp 0.6s ease-out',
-                        'slide-down': 'slideDown 0.3s ease-out',
-                        'float': 'float 6s ease-in-out infinite',
-                        'float-delay': 'float 6s ease-in-out 2s infinite',
-                        'float-slow': 'float 8s ease-in-out 1s infinite',
-                        'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
+                    colors: {
+                        paper: tone('paper'), surface: tone('surface'), sunken: tone('sunken'),
+                        line: tone('line'), ink: tone('ink'), muted: tone('muted'), faint: tone('faint'),
+                        accent: { DEFAULT: tone('accent'), ink: tone('accent-ink'), soft: tone('accent-soft') },
+                        primary: { DEFAULT: tone('primary'), ink: tone('primary-ink') },
+                        birthday: { DEFAULT: tone('birthday'), soft: tone('birthday-soft') },
+                        anniversary: { DEFAULT: tone('anniversary'), soft: tone('anniversary-soft') },
+                        other: { DEFAULT: tone('other'), soft: tone('other-soft') },
+                        ok: { DEFAULT: tone('ok'), soft: tone('ok-soft') },
+                        warn: { DEFAULT: tone('warn'), soft: tone('warn-soft') },
+                        danger: { DEFAULT: tone('danger'), soft: tone('danger-soft') },
                     },
-                    keyframes: {
-                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        slideDown: { '0%': { opacity: '0', transform: 'translateY(-10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-12px)' } },
-                        pulseSoft: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.7' } },
-                    }
+                    fontFamily: {
+                        sans: ['Geist', 'system-ui', 'sans-serif'],
+                        display: ['"Bricolage Grotesque"', 'Geist', 'system-ui', 'sans-serif'],
+                    },
                 }
             }
         }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        * { font-family: 'Inter', system-ui, sans-serif; }
-        .gradient-border { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1px; border-radius: 1rem; }
-        .gradient-border > * { background: white; border-radius: calc(1rem - 1px); }
-        input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
-        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Geist:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    {% block head %}{% endblock %}
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-    <!-- Nav -->
-    <nav class="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50">
-        <div class="flex items-center justify-between px-6 lg:px-8 py-4 max-w-7xl mx-auto">
-            <a href="/" class="group">
-                <span class="text-xl font-black tracking-tight group-hover:opacity-80 transition">Memory<span class="text-violet-600">Bell</span></span>
-            </a>
+<body class="min-h-screen flex flex-col {% block body_class %}{% endblock %}">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] btn btn-secondary">Skip to content</a>
 
-            <!-- Desktop Nav -->
-            <div class="hidden md:flex items-center gap-1">
-                {% if current_user.is_authenticated %}
-                <a href="/dashboard" class="px-4 py-2 text-sm text-gray-600 hover:text-black hover:bg-gray-50 rounded-lg transition">Dashboard</a>
-                <a href="/reminders/create" class="px-4 py-2 text-sm text-gray-600 hover:text-black hover:bg-gray-50 rounded-lg transition">New Reminder</a>
-                <a href="/history" class="px-4 py-2 text-sm text-gray-600 hover:text-black hover:bg-gray-50 rounded-lg transition">History</a>
-                {% endif %}
-            </div>
+    {% set path = request.path %}
+    <header class="sticky top-0 z-50 border-b border-line bg-paper/75 backdrop-blur-xl backdrop-saturate-150">
+        <nav class="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center gap-3 sm:gap-6" aria-label="Main">
+            <a href="/" class="shrink-0 rounded-lg" aria-label="MemoryBell home">{{ ui.logo() }}</a>
 
-            <div class="flex items-center gap-2.5">
-                {% if current_user.is_authenticated %}
-                    <a href="/profile" class="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition">
-                        <div class="w-5 h-5 bg-gradient-to-br from-violet-400 to-indigo-400 rounded-full"></div>
-                        {{ current_user.name.split(' ')[0] }}
-                    </a>
-                    <a href="/logout" class="px-5 py-2 text-sm rounded-xl bg-black text-white hover:bg-gray-800 transition font-medium">Log Out</a>
-                {% else %}
-                    <a href="/login" class="hidden md:inline-flex px-5 py-2 text-sm rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition font-medium">Log In</a>
-                    <a href="/signup" class="px-5 py-2 text-sm rounded-xl bg-black text-white hover:bg-gray-800 transition font-medium">Get Started</a>
-                {% endif %}
-
-                <!-- Mobile Menu Button -->
-                <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden border-t border-gray-100 bg-white px-6 py-4 space-y-1 animate-slide-down">
             {% if current_user.is_authenticated %}
-            <a href="/dashboard" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">Dashboard</a>
-            <a href="/reminders/create" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">New Reminder</a>
-            <a href="/history" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">History</a>
-            <a href="/profile" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">Profile</a>
-            {% else %}
-            <a href="/login" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">Log In</a>
-            <a href="/signup" class="block px-4 py-2.5 text-sm rounded-lg hover:bg-gray-50 transition">Sign Up</a>
+            <div class="hidden md:flex items-center gap-1">
+                <a href="/dashboard" class="nav-link" {% if path == '/dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
+                <a href="/history" class="nav-link" {% if path.startswith('/history') %}aria-current="page"{% endif %}>History</a>
+            </div>
             {% endif %}
-        </div>
-    </nav>
 
-    <!-- Flash Messages -->
+            <div class="ml-auto flex items-center gap-1.5">
+                <button type="button" class="theme-toggle btn btn-icon" data-theme-toggle aria-label="Switch color theme" title="Switch theme">
+                    {{ ui.icon('moon', 'icon-moon') }}{{ ui.icon('sun', 'icon-sun') }}
+                </button>
+
+                {% if current_user.is_authenticated %}
+                {% if path != '/dashboard' and not path.startswith('/reminders') %}
+                <a href="/reminders/create" class="btn btn-primary btn-sm hidden sm:inline-flex">{{ ui.icon('plus') }} New reminder</a>
+                {% endif %}
+
+                <details class="relative" data-menu>
+                    <summary class="flex items-center gap-2 h-9 pl-1 pr-1 sm:pr-2.5 rounded-full border border-line bg-surface hover:bg-sunken transition-colors" aria-label="Account menu">
+                        <span class="grid place-items-center w-7 h-7 rounded-full bg-primary text-primary-ink text-xs font-semibold">{{ current_user.name[:1]|upper }}</span>
+                        <span class="hidden sm:inline text-sm font-medium">{{ current_user.name.split(' ')[0] }}</span>
+                    </summary>
+                    <div class="menu" role="menu">
+                        <div class="px-2.5 pt-1.5 pb-2 mb-1 border-b border-line">
+                            <p class="text-sm font-medium truncate">{{ current_user.name }}</p>
+                            {% if current_user.email %}<p class="text-xs text-muted truncate">{{ current_user.email }}</p>{% endif %}
+                        </div>
+                        <a href="/dashboard" class="md:hidden" role="menuitem">{{ ui.icon('home') }} Dashboard</a>
+                        <a href="/reminders/create" class="sm:hidden" role="menuitem">{{ ui.icon('plus') }} New reminder</a>
+                        <a href="/history" class="md:hidden" role="menuitem">{{ ui.icon('history') }} History</a>
+                        <a href="/profile" role="menuitem">{{ ui.icon('user') }} Profile & settings</a>
+                        <a href="/logout" role="menuitem">{{ ui.icon('logout') }} Log out</a>
+                    </div>
+                </details>
+                {% else %}
+                <a href="/login" class="btn btn-ghost btn-sm px-2.5 sm:px-3">Log in</a>
+                <a href="/signup" class="btn btn-primary btn-sm"><span>Sign up<span class="hidden sm:inline"> free</span></span></a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-    <div class="max-w-7xl mx-auto px-6 lg:px-8 pt-4">
+    <div class="toast-stack" role="status" aria-live="polite">
         {% for category, message in messages %}
-        <div class="flash-msg mb-3 px-5 py-3.5 rounded-xl text-sm flex items-center gap-3 animate-slide-down
-            {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200
-            {% else %}bg-emerald-50 text-emerald-700 border border-emerald-200{% endif %}">
-            {% if category == 'error' %}
-            <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
-            {% else %}
-            <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-            {% endif %}
-            {{ message }}
+        <div class="toast {{ 'is-error' if category == 'error' else 'is-success' }}" data-toast>
+            {{ ui.icon('alert' if category == 'error' else 'check-circle') }}
+            <p class="flex-1">{{ message }}</p>
+            <button type="button" class="btn btn-icon -my-1.5 -mr-1 w-7 h-7" data-toast-close aria-label="Dismiss">{{ ui.icon('x', 'w-3.5 h-3.5') }}</button>
         </div>
         {% endfor %}
     </div>
     {% endif %}
     {% endwith %}
 
-    <main class="flex-1">
+    <main id="main" class="flex-1 page-backdrop">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-100 mt-auto">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 py-5 flex items-center justify-between">
-            <span class="text-sm font-black tracking-tight">Memory<span class="text-violet-600">Bell</span></span>
-            <p class="text-xs text-gray-400">Made with ❤️ by <a href="https://bishalde.vercel.app/" target="_blank" rel="noopener noreferrer" class="text-violet-500 hover:text-violet-700 font-medium transition">Bishal</a></p>
-            <div class="flex items-center gap-3">
-                <a href="https://github.com/bishalde" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-black transition">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
-                </a>
-                <a href="https://www.linkedin.com/in/bishalde/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-blue-600 transition">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                </a>
-                <a href="https://bishalde.vercel.app/" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-violet-600 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5a17.92 17.92 0 01-8.716-2.247m0 0A8.966 8.966 0 013 12c0-1.264.26-2.466.733-3.559"/></svg>
-                </a>
+    <footer class="site-footer border-t border-line">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-8">
+            <div class="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-[1.4fr_1fr_1fr]">
+                <div class="col-span-2 sm:col-span-1 max-w-xs">
+                    <a href="/" class="inline-block rounded-lg" aria-label="MemoryBell home">{{ ui.logo() }}</a>
+                    <p class="mt-3 text-sm text-muted leading-relaxed">A text on your phone before every birthday and anniversary, so you never scramble for a last-minute gift again.</p>
+                </div>
+                {% if current_user.is_authenticated %}
+                <nav aria-label="Your reminders">
+                    <h2 class="footer-heading">Your reminders</h2>
+                    <ul class="footer-links">
+                        <li><a href="/dashboard">Dashboard</a></li>
+                        <li><a href="/reminders/create">New reminder</a></li>
+                        <li><a href="/history">History</a></li>
+                    </ul>
+                </nav>
+                <nav aria-label="Account">
+                    <h2 class="footer-heading">Account</h2>
+                    <ul class="footer-links">
+                        <li><a href="/profile">Profile &amp; settings</a></li>
+                        <li><a href="/profile/export?format=csv">Download my reminders</a></li>
+                        <li><a href="/logout">Log out</a></li>
+                    </ul>
+                </nav>
+                {% else %}
+                <nav aria-label="MemoryBell">
+                    <h2 class="footer-heading">MemoryBell</h2>
+                    <ul class="footer-links">
+                        <li><a href="/#try">Try it</a></li>
+                        <li><a href="/#how-it-works">How it works</a></li>
+                        <li><a href="/#features">Features</a></li>
+                        <li><a href="/#faq">Questions</a></li>
+                    </ul>
+                </nav>
+                <nav aria-label="Account">
+                    <h2 class="footer-heading">Get started</h2>
+                    <ul class="footer-links">
+                        <li><a href="/signup">Create a free account</a></li>
+                        <li><a href="/login">Log in</a></li>
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+
+            <div class="mt-10 pt-6 border-t border-line flex flex-col-reverse sm:flex-row items-center justify-between gap-4 text-sm text-muted">
+                <p class="text-center sm:text-left">&copy; {{ current_year }} MemoryBell. Made with <svg class="footer-heart" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="love"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.6 1.2 5.4 3.2 1.8-2 3.3-3.2 5.4-3.2 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg> by <a href="https://bishalde.vercel.app/" target="_blank" rel="noopener noreferrer" class="font-medium text-ink hover:text-accent transition-colors">Bishal</a>, texts sent with Twilio.</p>
+                <div class="flex items-center gap-1">
+                    <a href="https://github.com/bishalde/memorybell" target="_blank" rel="noopener noreferrer" class="btn btn-icon" aria-label="MemoryBell on GitHub" title="Source code on GitHub">
+                        <svg class="icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/bishalde/" target="_blank" rel="noopener noreferrer" class="btn btn-icon" aria-label="Bishal on LinkedIn">
+                        <svg class="icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    </a>
+                    <a href="https://bishalde.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn btn-icon" aria-label="Bishal’s website">{{ ui.icon('globe') }}</a>
+                </div>
             </div>
         </div>
     </footer>
 
     <script>
-        // Auto-dismiss flash messages after 4 seconds
-        setTimeout(function() {
-            document.querySelectorAll('.flash-msg').forEach(function(el) {
-                el.style.transition = 'opacity 0.5s, transform 0.5s';
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(-10px)';
-                setTimeout(function() { el.remove(); }, 500);
+        (function () {
+            var root = document.documentElement;
+
+            // Theme toggle
+            document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+                    root.dataset.theme = next;
+                    try { localStorage.setItem('mb-theme', next); } catch (e) {}
+                });
             });
-        }, 4000);
+
+            // Close the account menu on outside click or Escape
+            document.addEventListener('click', function (e) {
+                document.querySelectorAll('details[data-menu][open]').forEach(function (d) {
+                    if (!d.contains(e.target)) d.removeAttribute('open');
+                });
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Escape') return;
+                document.querySelectorAll('details[data-menu][open]').forEach(function (d) {
+                    d.removeAttribute('open');
+                    d.querySelector('summary').focus();
+                });
+            });
+
+            // Toasts: dismiss on click, auto-dismiss after 5s
+            function dismiss(t) {
+                t.classList.add('is-leaving');
+                setTimeout(function () { t.remove(); }, 300);
+            }
+            document.querySelectorAll('[data-toast]').forEach(function (t) {
+                t.querySelector('[data-toast-close]').addEventListener('click', function () { dismiss(t); });
+                setTimeout(function () { dismiss(t); }, 5000);
+            });
+
+            // Countdowns: next yearly occurrence of an event date, in the viewer's local time
+            var today = new Date(); today.setHours(0, 0, 0, 0);
+            document.querySelectorAll('.countdown[data-date]').forEach(function (el) {
+                var p = (el.dataset.date || '').split('-');
+                if (p.length < 3) return;
+                var next = new Date(today.getFullYear(), +p[1] - 1, +p[2]);
+                if (next < today) next.setFullYear(today.getFullYear() + 1);
+                var days = Math.round((next - today) / 86400000);
+                el.textContent = days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : 'In ' + days + ' days';
+                if (days === 0) el.dataset.soon = 'today';
+                else if (days <= 7) el.dataset.soon = 'near';
+            });
+        })();
     </script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

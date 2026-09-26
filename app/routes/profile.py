@@ -1,4 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+import csv
+import io
+import json
+from datetime import datetime
+from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
 from flask_login import login_required, current_user, logout_user
 from bson.objectid import ObjectId
 from app import db, bcrypt
@@ -62,7 +66,53 @@ def change_password():
 def delete_account():
     user_id = ObjectId(current_user.id)
     db.reminders.delete_many({"user_id": user_id})
+    db.notifications.delete_many({"user_id": user_id})
     db.users.delete_one({"_id": user_id})
     logout_user()
     flash("Account deleted.", "success")
     return redirect(url_for("auth.login"))
+
+
+EXPORT_REMINDER_FIELDS = [
+    "event_name", "event_type", "event_date", "year_known", "contact_name",
+    "contact_country_code", "contact_phone", "notify_method", "reminder_before",
+    "notes", "recipient_message", "paused_until", "created_at",
+]
+
+
+def _plain(doc, drop=("_id", "user_id", "password_hash")):
+    """A JSON-safe copy of a Mongo document without internal fields."""
+    return {k: v for k, v in doc.items() if k not in drop}
+
+
+@profile_bp.route("/profile/export")
+@login_required
+def export():
+    user_id = ObjectId(current_user.id)
+    reminders = list(db.reminders.find({"user_id": user_id}).sort("event_date", 1))
+    stamp = datetime.utcnow().strftime("%Y-%m-%d")
+
+    if request.args.get("format") == "csv":
+        out = io.StringIO()
+        writer = csv.DictWriter(out, fieldnames=EXPORT_REMINDER_FIELDS, extrasaction="ignore")
+        writer.writeheader()
+        for r in reminders:
+            row = {k: r.get(k, "") for k in EXPORT_REMINDER_FIELDS}
+            rb = row["reminder_before"]
+            row["reminder_before"] = " ".join(rb) if isinstance(rb, list) else rb
+            writer.writerow(row)
+        return Response(out.getvalue(), mimetype="text/csv", headers={
+            "Content-Disposition": f"attachment; filename=memorybell-reminders-{stamp}.csv",
+        })
+
+    user = db.users.find_one({"_id": user_id}) or {}
+    notifications = db.notifications.find({"user_id": user_id}, {"reminder_id": 0}).sort("sent_at", -1)
+    data = {
+        "exported_at": datetime.utcnow(),
+        "profile": _plain(user),
+        "reminders": [_plain(r) for r in reminders],
+        "notifications": [_plain(n) for n in notifications],
+    }
+    return Response(json.dumps(data, indent=2, default=str, ensure_ascii=False), mimetype="application/json", headers={
+        "Content-Disposition": f"attachment; filename=memorybell-export-{stamp}.json",
+    })

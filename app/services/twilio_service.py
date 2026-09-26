@@ -38,12 +38,21 @@ def send_whatsapp_reminder(to_number, message):
     return msg.sid
 
 
+def status_callback_url():
+    """Where Twilio reports delivery status, or None when there's no public URL (local dev)."""
+    return f"{Config.PUBLIC_BASE_URL}/api/twilio/status" if Config.PUBLIC_BASE_URL else None
+
+
 def send_sms_reminder(to_number, message):
     client = get_twilio_client()
+    kwargs = {}
+    if status_callback_url():
+        kwargs["status_callback"] = status_callback_url()
     msg = client.messages.create(
         from_=Config.TWILIO_PHONE_NUMBER,
         body=message,
         to=to_number,
+        **kwargs,
     )
     return msg.sid
 

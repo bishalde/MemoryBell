@@ -8,6 +8,7 @@ class User(UserMixin):
         self.name = user_data.get("name", "")
         self.email = user_data.get("email", "")
         self.phone_number = user_data.get("phone_number", "")
+        self.country_code = user_data.get("country_code", "+1")
         self.whatsapp_number = user_data.get("whatsapp_number", "")
         self.timezone = user_data.get("timezone", "UTC")
 
