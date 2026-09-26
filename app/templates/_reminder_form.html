@@ -172,52 +172,15 @@
     </div>
 </div>
 
+<script src="/static/js/sms-preview.js"></script>
 <script>
 (function () {
+    var SMS = window.MemoryBellSMS;
     var months = {{ ui.MONTHS|tojson }};
-    var longMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     var offsets = { same_day: 0, '1_day_before': 1, '3_days_before': 3, '7_days_before': 7 };
     var firstName = {{ current_user.name.split(' ')[0]|tojson }};
     var form = document.getElementById('reminder-form');
     var $ = function (id) { return document.getElementById(id); };
-
-    function ordinal(n) {
-        var s = (n % 100 >= 10 && n % 100 <= 20) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
-        return n + s;
-    }
-    // Mirrors milestone() in app/services/dates.py
-    function milestone(type, years) {
-        if (!years || years < 1) return '';
-        if (type === 'birthday') return 'turns ' + years;
-        if (type === 'anniversary') return ordinal(years) + ' anniversary';
-        return years + (years === 1 ? ' year' : ' years');
-    }
-    function nextOccurrence(m, d) {
-        var today = new Date(); today.setHours(0, 0, 0, 0);
-        var make = function (y) {
-            var dt = new Date(y, m - 1, d);
-            return dt.getMonth() === m - 1 ? dt : new Date(y, m - 1, 28); // Feb 29 in a non-leap year
-        };
-        var next = make(today.getFullYear());
-        if (next < today) next = make(today.getFullYear() + 1);
-        return { date: next, days: Math.round((next - today) / 86400000) };
-    }
-    // Mirrors _build_sms_message() in app/services/scheduler.py
-    function smsText(o) {
-        var label = { birthday: 'birthday', anniversary: 'anniversary' }[o.type] || 'event';
-        var contact = o.contact || 'Someone special';
-        var when = { 0: ['TODAY', 'Don’t miss it!'], 1: ['TOMORROW', 'Still time to prepare!'], 3: ['in 3 days', 'Plan something special!'], 7: ['in 1 week', 'Plenty of time to get ready!'] }[o.offset];
-        var tip = o.type === 'birthday' ? 'Send a wish or surprise them with a gift!' : o.type === 'anniversary' ? 'Plan something memorable together!' : 'Make sure you’re prepared!';
-        var marks = milestone(o.type, o.years), marksLine = '';
-        if (marks) marksLine = o.type === 'birthday' ? contact + ' ' + marks + '!\n' : o.type === 'anniversary' ? 'It’s the ' + marks + '!\n' : 'It’s been ' + marks + '!\n';
-        return 'Hi ' + firstName + '!\n\n' +
-            contact + '’s ' + label + ' is ' + when[0] + '!\n' +
-            'Event: ' + (o.name || 'Your occasion') + '\n' +
-            'Date: ' + o.dateLabel + '\n' + marksLine + '\n' +
-            (o.notes ? 'Note: ' + o.notes + '\n\n' : '') +
-            (o.number ? 'Text or call ' + (o.contact || 'them') + ': ' + o.number + '\n\n' : '') +
-            when[1] + ' ' + tip;
-    }
 
     function update() {
         var name = $('event_name').value.trim();
@@ -239,17 +202,17 @@
         var ms = $('pv-milestone');
         ms.hidden = true;
         if (p.length === 3 && +p[1]) {
-            var next = nextOccurrence(+p[1], +p[2]);
+            var next = SMS.nextOccurrence(+p[1], +p[2]);
             $('pv-month').textContent = months[+p[1] - 1];
             $('pv-day').textContent = +p[2];
             var c = $('pv-count');
-            c.textContent = next.days === 0 ? 'Today' : next.days === 1 ? 'Tomorrow' : 'In ' + next.days + ' days';
+            c.textContent = SMS.countdown(next.days);
             c.dataset.soon = next.days === 0 ? 'today' : next.days <= 7 ? 'near' : '';
-            dateLabel = longMonths[next.date.getMonth()] + ' ' + String(next.date.getDate()).padStart(2, '0') + ', ' + next.date.getFullYear();
+            dateLabel = SMS.dateLabel(next.date);
 
             if ($('year_known').checked) {
                 years = next.date.getFullYear() - +p[0];
-                var text = milestone(type, years);
+                var text = SMS.milestone(type, years);
                 if (text) {
                     ms.textContent = text.charAt(0).toUpperCase() + text.slice(1);
                     ms.hidden = false;
@@ -261,7 +224,7 @@
         }
 
         $('pv-when').textContent = offset === 0 ? 'Text on the day' : 'First text, ' + (offset === 7 ? '1 week' : offset + (offset === 1 ? ' day' : ' days')) + ' before';
-        $('pv-sms').textContent = smsText({ name: name, contact: contact, type: type, offset: offset, years: years, notes: notes, number: number, dateLabel: dateLabel });
+        $('pv-sms').textContent = SMS.smsText({ firstName: firstName, name: name, contact: contact, type: type, offset: offset, years: years, notes: notes, number: number, dateLabel: dateLabel });
     }
 
     // Quick-start presets

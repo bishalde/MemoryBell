@@ -3,7 +3,8 @@
 {% block title %}MemoryBell · Remember every birthday{% endblock %}
 
 {% block content %}
-<section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-20 grid lg:grid-cols-[1.1fr_1fr] gap-14 lg:gap-10 items-center">
+{# ---------- Hero ---------- #}
+<section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-20 grid lg:grid-cols-[1.05fr_1fr] gap-14 lg:gap-10 items-center">
     <div>
         <span class="badge badge-accent mb-6">{{ ui.icon('bell') }} Reminders by text message</span>
         {# A different headline on each page load #}
@@ -16,47 +17,115 @@
         ] %}
         <h1 class="text-[2.75rem] leading-[1.02] sm:text-6xl lg:text-7xl font-semibold text-balance" style="letter-spacing:-0.035em">{{ headlines|random }}</h1>
         <p class="mt-6 text-lg text-muted max-w-xl leading-relaxed">
-            Save a date once. MemoryBell texts you on the day, or up to a week ahead, every year after.
+            Save a date once. MemoryBell texts you on the day, or up to a week ahead, every year after. It even counts the years and keeps your gift ideas.
         </p>
         <div class="mt-9 flex flex-col sm:flex-row gap-3">
             <a href="/signup" class="btn btn-primary btn-lg">Create a free account</a>
-            <a href="#how-it-works" class="btn btn-secondary btn-lg">See how it works</a>
+            <a href="#try" class="btn btn-secondary btn-lg">Try it now</a>
         </div>
-        <p class="mt-4 text-sm text-faint">Free. No card needed.</p>
+        <p class="mt-4 text-sm text-faint">Free for up to 5 dates. No card needed.</p>
     </div>
 
-    <div class="relative h-[25rem] sm:h-[28rem]" aria-hidden="true">
+    <div class="relative h-[37rem] sm:h-[38rem]" aria-hidden="true">
         <div class="absolute inset-0 rounded-[28px] border border-line bg-surface/60"
              style="background-image: radial-gradient(rgb(var(--line)) 1px, transparent 1px); background-size: 22px 22px;"></div>
 
-        <div class="leaf absolute left-[8%] top-[14%]" style="--r:-9deg; animation-delay:.05s">{{ ui.date_tile('2000-04-12', 'anniversary', 'lg') }}</div>
-        <div class="absolute left-1/2 top-[8%] -translate-x-1/2"><div class="leaf" style="--r:3deg; animation-delay:.15s">{{ ui.date_tile('2000-03-20', 'birthday', 'xl') }}</div></div>
-        <div class="leaf absolute right-[8%] top-[24%]" style="--r:10deg; animation-delay:.25s">{{ ui.date_tile('2000-06-05', 'custom', 'lg') }}</div>
+        <div class="leaf absolute left-[3%] top-[7%]" style="--r:-10deg; animation-delay:.05s">{{ ui.date_tile('2000-03-20', 'birthday', 'lg') }}</div>
+        <div class="leaf absolute right-[3%] top-[13%]" style="--r:9deg; animation-delay:.15s">{{ ui.date_tile('2000-06-14', 'anniversary', 'lg') }}</div>
+        <div class="leaf absolute left-[9%] bottom-[10%] hidden sm:block" style="--r:6deg; animation-delay:.25s">{{ ui.date_tile('2000-10-21', 'custom') }}</div>
 
-        <div class="absolute inset-x-0 bottom-[8%] flex justify-center px-[6%]"><div class="leaf w-full max-w-sm panel p-4" style="--r:0deg; animation-delay:.45s; box-shadow: var(--shadow-lg)">
-            <div class="flex items-center gap-2.5 mb-3">
-                <span class="grid place-items-center w-8 h-8 rounded-full bg-accent text-accent-ink">{{ ui.icon('bell', 'w-4 h-4') }}</span>
-                <div class="flex-1">
-                    <p class="text-sm font-semibold">MemoryBell</p>
-                    <p class="text-xs text-muted">Text message, 9:00 AM</p>
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="phone leaf" style="--r:0deg; animation-delay:.3s">
+                <div class="phone__bar">
+                    <span class="grid place-items-center w-8 h-8 rounded-full bg-accent text-white">{{ ui.icon('bell', 'w-4 h-4') }}</span>
+                    <div class="leading-tight">
+                        <p class="text-sm font-semibold">MemoryBell</p>
+                        <p class="text-[.7rem] text-muted">Text message</p>
+                    </div>
                 </div>
-                <span class="badge badge-warn">Tomorrow</span>
+                <div class="phone__thread" data-thread>
+                    <p class="phone__time">Mar 19, 9:00 AM</p>
+                    <p class="bubble">Hi Bishal! Mom’s birthday is <b>TOMORROW</b>!<br>Mom turns 60! 🎉<br>Still time to prepare!</p>
+                    <p class="phone__time">Jun 7, 9:00 AM</p>
+                    <p class="bubble">Your wedding anniversary is <b>in 1 week</b>!<br>It’s the 25th anniversary!<br>Plan something memorable together!</p>
+                    <p class="phone__time">Today, 9:00 AM</p>
+                    <p class="bubble">Sarah’s birthday is <b>TODAY</b>!<br>Note: loves orchids, size M<br>Text or call Sarah: <u>+91 98765 43210</u></p>
+                    <p class="typing"><span></span><span></span><span></span></p>
+                </div>
             </div>
-            <p class="rounded-2xl rounded-tl-md bg-sunken px-3.5 py-2.5 text-sm leading-relaxed">
-                Hi Bishal, Mom’s birthday is tomorrow, March 20. Still time to plan a call or send a gift.
-            </p>
-        </div></div>
+        </div>
     </div>
 </section>
 
-<section id="how-it-works" class="border-t border-line bg-surface/50 scroll-mt-16">
+{# ---------- Try it ---------- #}
+<section id="try" class="border-t border-line bg-surface/50 scroll-mt-16">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-[1fr_1.1fr] gap-12 items-start">
+        <div>
+            <h2 class="text-3xl sm:text-4xl font-semibold max-w-md">See the text you’d get.</h2>
+            <p class="mt-3 text-muted max-w-md leading-relaxed">Fill in a date you care about. This is exactly what lands on your phone, no account needed to look.</p>
+
+            <form class="mt-8 space-y-5 max-w-md" id="try-form" onsubmit="return false">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="label" for="try-contact">Who</label>
+                        <input class="input" id="try-contact" value="Mom" autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="label" for="try-date">Date</label>
+                        <input class="input" type="date" id="try-date">
+                    </div>
+                </div>
+                <div>
+                    <span class="label" id="try-type-label">Type</span>
+                    <div class="segmented" role="radiogroup" aria-labelledby="try-type-label">
+                        {% for value, label, ic in [('birthday', 'Birthday', 'cake'), ('anniversary', 'Anniversary', 'heart'), ('custom', 'Other', 'star')] %}
+                        <input type="radio" id="try-type-{{ value }}" name="try-type" value="{{ value }}" {% if loop.first %}checked{% endif %}>
+                        <label for="try-type-{{ value }}">{{ ui.icon(ic) }} {{ label }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <label class="label" for="try-note">Gift idea <span class="label-hint">Optional</span></label>
+                    <input class="input" id="try-note" value="Loves orchids" maxlength="80" autocomplete="off">
+                </div>
+                <label class="check"><input type="checkbox" id="try-year" checked> Count the years</label>
+            </form>
+        </div>
+
+        <div class="lg:pt-2">
+            <div class="panel p-5 sm:p-6" style="box-shadow: var(--shadow-lg)">
+                <div class="flex items-center gap-4">
+                    <span class="date-tile date-tile--lg" data-type="birthday" id="try-tile">
+                        <span class="date-tile__month" id="try-month">—</span>
+                        <span class="date-tile__day" id="try-day">?</span>
+                    </span>
+                    <div class="min-w-0">
+                        <p class="font-semibold truncate" id="try-title">Mom’s birthday</p>
+                        <div class="mt-1.5 flex flex-wrap gap-1.5">
+                            <span class="badge countdown tnum" id="try-count"></span>
+                            <span class="badge badge-accent" id="try-milestone" hidden></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 rounded-2xl rounded-tl-md bg-sunken p-4 text-sm leading-relaxed">
+                    <p class="text-xs text-muted mb-1.5 flex items-center gap-1.5">{{ ui.icon('message', 'w-3.5 h-3.5') }} Text from MemoryBell, 1 day before</p>
+                    <p id="try-sms" class="whitespace-pre-line break-words"></p>
+                </div>
+                <a href="/signup" class="btn btn-primary btn-block mt-5">Save this reminder, it’s free</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ---------- How it works ---------- #}
+<section id="how-it-works" class="scroll-mt-16">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
         <h2 class="text-3xl sm:text-4xl font-semibold max-w-lg">Set it up once. It runs every year.</h2>
         <ol class="mt-12 grid md:grid-cols-3 gap-px bg-line rounded-2xl overflow-hidden border border-line">
             {% for title, body in [
                 ('Create an account', 'Sign up with your email and confirm your phone number with a one-time code.'),
-                ('Add your dates', 'Birthdays, anniversaries, anything yearly. Choose how early you want the heads-up.'),
-                ('Get a text', 'We send a short, friendly message at the right time. Every year, automatically.'),
+                ('Add your dates', 'Birthdays, anniversaries, anything yearly. Add a gift idea or their number if you like.'),
+                ('Get a text', 'On the day, or up to a week ahead. Sent to your phone, every year, automatically.'),
             ] %}
             <li class="bg-surface p-7">
                 <span class="font-display text-sm font-semibold text-accent tnum">Step {{ loop.index }}</span>
@@ -68,29 +137,105 @@
     </div>
 </section>
 
-<section class="max-w-6xl mx-auto px-4 sm:px-6 py-20 grid md:grid-cols-2 gap-12 items-start">
-    <div>
-        <h2 class="text-3xl sm:text-4xl font-semibold">Small, quiet and reliable.</h2>
-        <p class="mt-4 text-muted leading-relaxed max-w-md">No app to install and no feed to check. Just a message on your phone when it matters.</p>
-    </div>
-    <dl class="grid sm:grid-cols-2 gap-x-8 gap-y-8">
-        {% for ic, title, body in [
-            ('clock', 'Choose your timing', 'On the day, 1 day, 3 days or a week before. Pick as many as you like.'),
-            ('calendar', 'Repeats every year', 'Add a date once and it comes back around automatically.'),
-            ('message', 'Plain text messages', 'Works on any phone. WhatsApp and calls are on the way.'),
-            ('shield', 'Private by default', 'Phone verification at sign-up, hashed passwords, no ads.'),
-        ] %}
-        <div>
-            <dt class="flex items-center gap-2.5 font-semibold">
-                <span class="grid place-items-center w-8 h-8 rounded-lg bg-accent-soft text-accent">{{ ui.icon(ic) }}</span>
-                {{ title }}
-            </dt>
-            <dd class="mt-2 text-sm text-muted leading-relaxed">{{ body }}</dd>
+{# ---------- Features ---------- #}
+<section class="border-t border-line bg-surface/50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-20">
+        <h2 class="text-3xl sm:text-4xl font-semibold max-w-xl">Everything you’d forget, kept for you.</h2>
+        <p class="mt-3 text-muted max-w-md leading-relaxed">No app to install and no feed to check. Just the right message on your phone when it matters.</p>
+
+        <div class="mt-12 grid md:grid-cols-3 gap-4">
+            <article class="feature md:col-span-2">
+                <div class="feature__art flex items-end gap-3">
+                    {{ ui.date_tile('2000-03-20', 'birthday') }}
+                    <span class="badge badge-accent mb-1">Turns 60</span>
+                    <span class="w-3 hidden sm:block"></span>
+                    <span class="hidden sm:contents">
+                        {{ ui.date_tile('2000-06-14', 'anniversary') }}
+                        <span class="badge badge-accent mb-1">25th anniversary</span>
+                    </span>
+                </div>
+                <h3 class="feature__title">Counts the years</h3>
+                <p class="feature__body">Tell us the year and every text says how old they’re turning, or which anniversary it is.</p>
+            </article>
+
+            <article class="feature">
+                <div class="feature__art">
+                    <p class="bubble bubble--static">Text or call Sarah: <u>+91 98765 43210</u></p>
+                </div>
+                <h3 class="feature__title">One tap to reach them</h3>
+                <p class="feature__body">Add their number and it’s in your reminder. We only ever text you.</p>
+            </article>
+
+            <article class="feature">
+                <div class="feature__art">
+                    <p class="bubble bubble--static">Note: loves orchids, size M, no nuts</p>
+                </div>
+                <h3 class="feature__title">Notes and gift ideas</h3>
+                <p class="feature__body">Jot down what they’d love. It arrives with the reminder, right when you need it.</p>
+            </article>
+
+            <article class="feature">
+                <div class="feature__art">
+                    <div class="mini-menu">
+                        <span>{{ ui.icon('skip') }} Skip this year</span>
+                        <span>{{ ui.icon('pause') }} Pause</span>
+                    </div>
+                </div>
+                <h3 class="feature__title">Skip a year</h3>
+                <p class="feature__body">Celebrating early, or taking a break? Skip once, or pause until you’re ready.</p>
+            </article>
+
+            <article class="feature">
+                <div class="feature__art">
+                    <span class="grid place-items-center w-11 h-11 rounded-xl bg-sunken text-ink">{{ ui.icon('download', 'w-5 h-5') }}</span>
+                    <span class="ml-2 text-xs text-muted font-medium">memorybell-export.json</span>
+                </div>
+                <h3 class="feature__title">Your data, yours</h3>
+                <p class="feature__body">Download everything as JSON or CSV any time. No ads, hashed passwords.</p>
+            </article>
+
+            <article class="feature md:col-span-3">
+                <div class="feature__art !h-auto">
+                    <ol class="mini-year" aria-hidden="true">
+                        {% set demo = {2: ('birthday', 20), 5: ('anniversary', 14), 7: ('birthday', 2), 9: ('custom', 21), 11: ('birthday', 9)} %}
+                        {% for m in ui.MONTHS %}
+                        <li>
+                            <span class="text-[.7rem] font-medium text-faint">{{ m }}</span>
+                            {% if loop.index0 in demo %}<span class="year-strip__dot {% if loop.index0 == 9 %}is-next{% endif %}" data-type="{{ demo[loop.index0][0] }}">{{ demo[loop.index0][1] }}</span>{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                <h3 class="feature__title">Your year at a glance</h3>
+                <p class="feature__body">See where every date falls, and what’s next, the moment you log in.</p>
+            </article>
         </div>
-        {% endfor %}
-    </dl>
+    </div>
 </section>
 
+{# ---------- FAQ ---------- #}
+<section class="max-w-6xl mx-auto px-4 sm:px-6 py-20 grid md:grid-cols-[1fr_1.6fr] gap-10">
+    <div>
+        <h2 class="text-3xl sm:text-4xl font-semibold">Questions</h2>
+        <p class="mt-3 text-muted">Anything else? <a href="https://bishalde.vercel.app/" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 hover:text-ink">Get in touch</a>.</p>
+    </div>
+    <div class="faq">
+        {% for q, a in [
+            ('Is it free?', 'Yes. Every account can keep up to 5 dates, and there’s no card to enter.'),
+            ('Do you text the other person?', 'Never. Every reminder goes to your phone. If you add their number, it’s included in your text so you can reach them in one tap.'),
+            ('Which countries work?', 'More than 30, including India, the US, the UK and Australia. Pick your country code when you sign up.'),
+            ('Can I pause a reminder?', 'Yes. Skip it for one year and it comes back on its own, or pause it until you turn it back on.'),
+            ('Can I take my data with me?', 'Any time. Download your reminders and text history from your profile as JSON or CSV.'),
+        ] %}
+        <details {% if loop.first %}open{% endif %}>
+            <summary>{{ q }}<span class="faq__icon">{{ ui.icon('plus') }}</span></summary>
+            <p>{{ a }}</p>
+        </details>
+        {% endfor %}
+    </div>
+</section>
+
+{# ---------- CTA ---------- #}
 <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-24">
     <div class="relative overflow-hidden rounded-[28px] bg-primary text-primary-ink px-6 py-14 sm:px-14 flex flex-col md:flex-row md:items-center justify-between gap-8">
         <div class="relative">
@@ -100,4 +245,72 @@
         <a href="/signup" class="relative btn btn-lg bg-accent text-white hover:bg-[rgb(var(--accent-hover))] shrink-0">Create a free account</a>
     </div>
 </section>
+
+<script src="/static/js/sms-preview.js"></script>
+<script>
+(function () {
+    var SMS = window.MemoryBellSMS;
+    var months = {{ ui.MONTHS|tojson }};
+    var $ = function (id) { return document.getElementById(id); };
+
+    // Hero: messages arrive one by one, each after a typing indicator
+    var thread = document.querySelector('[data-thread]');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (thread && !reduce) {
+        var items = Array.prototype.slice.call(thread.querySelectorAll('.bubble, .phone__time'));
+        var typing = thread.querySelector('.typing');
+        thread.classList.add('is-playing');
+        var i = 0;
+        (function next() {
+            if (i >= items.length) { typing.classList.remove('is-on'); return; }
+            var el = items[i++];
+            if (el.classList.contains('phone__time')) { el.classList.add('is-in'); return setTimeout(next, 250); }
+            typing.classList.add('is-on');
+            setTimeout(function () {
+                typing.classList.remove('is-on');
+                el.classList.add('is-in');
+                setTimeout(next, 700);
+            }, 1100);
+        })();
+    }
+
+    // Try it: live preview built exactly like the real text
+    var form = $('try-form');
+    var d = new Date(); d.setDate(d.getDate() + 1);
+    $('try-date').value = (d.getFullYear() - 60) + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+    function update() {
+        var contact = $('try-contact').value.trim();
+        var type = form.querySelector('input[name="try-type"]:checked').value;
+        var label = { birthday: 'birthday', anniversary: 'anniversary' }[type] || 'day';
+        var name = type === 'anniversary' && !contact ? 'Wedding anniversary' : (contact || 'Someone') + '’s ' + label;
+        var p = $('try-date').value.split('-'), years = null, dl = '';
+        var ms = $('try-milestone');
+        ms.hidden = true;
+        $('try-title').textContent = name;
+        $('try-tile').dataset.type = type;
+        if (p.length === 3 && +p[1]) {
+            var next = SMS.nextOccurrence(+p[1], +p[2]);
+            $('try-month').textContent = months[+p[1] - 1];
+            $('try-day').textContent = +p[2];
+            var c = $('try-count');
+            c.textContent = SMS.countdown(next.days);
+            c.dataset.soon = next.days === 0 ? 'today' : next.days <= 7 ? 'near' : '';
+            dl = SMS.dateLabel(next.date);
+            if ($('try-year').checked) {
+                years = next.date.getFullYear() - +p[0];
+                var text = SMS.milestone(type, years);
+                if (text) { ms.textContent = text.charAt(0).toUpperCase() + text.slice(1); ms.hidden = false; }
+            }
+        }
+        $('try-sms').textContent = SMS.smsText({
+            firstName: 'there', name: name, contact: contact, type: type, offset: 1,
+            years: years, notes: $('try-note').value.trim(), dateLabel: dl
+        });
+    }
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    update();
+})();
+</script>
 {% endblock %}
