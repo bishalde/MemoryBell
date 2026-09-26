@@ -1,0 +1,310 @@
+{# Shared create/edit form. Expects: r (dict, empty for create), heading, subheading, submit_label, show_delete, show_presets #}
+{% import "_macros.html" as ui %}
+{% set etype = r.get('event_type', 'birthday') %}
+{% set rb = r.get('reminder_before', ['same_day']) %}
+{% set rb = rb if rb is iterable and rb is not string else [rb] %}
+{% set date_str = r.get('event_date', '')|string %}
+{% set presets = [
+    ('Mom’s birthday', 'birthday', 'Mom', ['same_day', '3_days_before']),
+    ('Dad’s birthday', 'birthday', 'Dad', ['same_day', '3_days_before']),
+    ('Partner’s birthday', 'birthday', '', ['same_day', '7_days_before']),
+    ('Best friend’s birthday', 'birthday', '', ['same_day', '1_day_before']),
+    ('Wedding anniversary', 'anniversary', '', ['same_day', '7_days_before']),
+    ('Work anniversary', 'anniversary', '', ['same_day']),
+] %}
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <div class="mb-6">{{ ui.back_link() }}</div>
+
+    <div class="grid lg:grid-cols-[1fr_19rem] gap-8 items-start">
+        <div>
+            <h1 class="text-3xl font-semibold">{{ heading }}</h1>
+            <p class="mt-1.5 text-muted">{{ subheading }}</p>
+
+            <form method="POST" class="mt-8 panel" id="reminder-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="divide-line">
+
+                {% if show_presets %}
+                <div class="p-5 sm:p-6" role="group" aria-labelledby="presets-label">
+                    <p class="label" id="presets-label">Start from <span class="label-hint">Fills in the form, change anything after</span></p>
+                    <div class="flex flex-wrap gap-2">
+                        {% for name, type, contact, when in presets %}
+                        <button type="button" class="preset" aria-pressed="false" data-preset='{{ {"name": name, "type": type, "contact": contact, "when": when}|tojson }}'>
+                            <span class="type-dot" data-type="{{ type }}"></span>{{ name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="p-5 sm:p-6 space-y-5" role="group" aria-label="The date">
+                    <div>
+                        <label class="label" for="event_name">What’s the occasion?</label>
+                        <input class="input" type="text" id="event_name" name="event_name" required
+                               value="{{ r.get('event_name', '') }}" placeholder="Mom’s birthday" autocomplete="off">
+                    </div>
+
+                    <div>
+                        <span class="label" id="type-label">Type</span>
+                        <div class="segmented" role="radiogroup" aria-labelledby="type-label">
+                            {% for value, label, ic in [('birthday', 'Birthday', 'cake'), ('anniversary', 'Anniversary', 'heart'), ('custom', 'Other', 'star')] %}
+                            <input type="radio" id="type-{{ value }}" name="event_type" value="{{ value }}" {% if etype == value %}checked{% endif %}>
+                            <label for="type-{{ value }}">{{ ui.icon(ic) }} {{ label }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="grid sm:grid-cols-[minmax(0,17rem)_1fr] gap-x-5 gap-y-3 sm:items-end">
+                        <div>
+                            <label class="label" for="event_date">Date</label>
+                            <input class="input" type="date" id="event_date" name="event_date" required value="{{ date_str }}">
+                        </div>
+                        <label class="check sm:h-11">
+                            <input type="checkbox" name="year_known" value="1" id="year_known" {% if r.get('year_known') %}checked{% endif %}>
+                            I know the year
+                        </label>
+                    </div>
+                    <p class="-mt-2 text-xs text-muted" id="date-hint">Repeats every year on this day.</p>
+                </div>
+
+                <div class="p-5 sm:p-6 space-y-5" role="group" aria-label="Who it’s for">
+                    <div>
+                        <label class="label" for="contact_name">Who is it for? <span class="label-hint">Optional</span></label>
+                        <input class="input" type="text" id="contact_name" name="contact_name"
+                               value="{{ r.get('contact_name', '') }}" placeholder="Sarah">
+                    </div>
+                    <div>
+                        <label class="label" for="contact_phone">Their phone number <span class="label-hint">Optional</span></label>
+                        <div class="grid grid-cols-[minmax(0,11.5rem)_1fr] gap-2">
+                            <select class="input" name="contact_country_code" aria-label="Country code">
+                                {{ ui.country_options(r.get('contact_country_code', current_user.country_code or '+91')) }}
+                            </select>
+                            <input class="input" type="tel" id="contact_phone" name="contact_phone"
+                                   value="{{ r.get('contact_phone', '') }}" placeholder="9876543210" inputmode="tel">
+                        </div>
+                        <p class="mt-1.5 text-xs text-muted">We never text them. Their number goes in your reminder so you can text or call them in one tap.</p>
+                    </div>
+                    <div>
+                        <label class="label" for="notes">Notes and gift ideas <span class="label-hint">Optional, included in the text</span></label>
+                        <textarea class="input" id="notes" name="notes" maxlength="200" rows="2"
+                                  placeholder="Loves orchids. Size M. Allergic to nuts.">{{ r.get('notes', '') }}</textarea>
+                        <p class="mt-1.5 text-xs text-faint text-right tnum"><span id="notes-count">{{ r.get('notes', '')|length }}</span>/200</p>
+                    </div>
+                </div>
+
+                <div class="p-5 sm:p-6 space-y-5" role="group" aria-label="How we remind you">
+                    <div>
+                        <span class="label" id="method-label">Remind me by</span>
+                        <div class="segmented" role="radiogroup" aria-labelledby="method-label">
+                            <input type="radio" id="method-sms" name="notify_method" value="sms" checked>
+                            <label for="method-sms">{{ ui.icon('message') }} SMS</label>
+                            <input type="radio" id="method-whatsapp" value="whatsapp" disabled>
+                            <label for="method-whatsapp" title="Coming soon">{{ ui.icon('whatsapp') }} WhatsApp</label>
+                            <input type="radio" id="method-call" value="call" disabled>
+                            <label for="method-call" title="Coming soon">{{ ui.icon('phone') }} Call</label>
+                        </div>
+                        <p class="mt-1.5 text-xs text-muted">WhatsApp and phone calls are coming soon.</p>
+                    </div>
+
+                    <div>
+                        <span class="label" id="when-label">When <span class="label-hint">Pick one or more</span></span>
+                        <div class="pill-group" role="group" aria-labelledby="when-label">
+                            {% for value, label in [('same_day', 'On the day'), ('1_day_before', '1 day before'), ('3_days_before', '3 days before'), ('7_days_before', '1 week before')] %}
+                            <input type="checkbox" id="rb-{{ value }}" name="reminder_before" value="{{ value }}" {% if value in rb %}checked{% endif %}>
+                            <label for="rb-{{ value }}">{{ ui.icon('check') }}{{ label }}</label>
+                            {% endfor %}
+                        </div>
+                        <p class="mt-2 text-xs text-muted">
+                            {% if current_user.phone_number %}Texts go to your number, {{ current_user.country_code }} {{ current_user.phone_number }}. <a href="/profile" class="underline underline-offset-2 hover:text-ink">Change</a>
+                            {% else %}Add your phone number in <a href="/profile" class="underline underline-offset-2 hover:text-ink">Profile</a> to get texts.{% endif %}
+                        </p>
+                    </div>
+
+                </div>
+
+                </div>
+                <div class="p-5 sm:p-6 border-t border-line flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2 bg-sunken/50 rounded-b-[14px]">
+                    <a href="/dashboard" class="btn btn-ghost">Cancel</a>
+                    <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+                </div>
+            </form>
+
+            {% if show_delete %}
+            <div class="mt-6 panel p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-danger/25">
+                <div>
+                    <h2 class="font-semibold">Delete this reminder</h2>
+                    <p class="text-sm text-muted">We’ll stop sending texts for it. This can’t be undone.</p>
+                </div>
+                <form method="POST" action="/reminders/{{ r._id }}/delete" onsubmit="return confirm('Delete this reminder? This can’t be undone.')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-danger">{{ ui.icon('trash') }} Delete reminder</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+        <aside class="lg:sticky lg:top-24" aria-label="Preview">
+            <p class="text-sm text-muted mb-3">Preview</p>
+            <div class="panel p-5">
+                <div class="flex items-center gap-4">
+                    <span class="date-tile date-tile--lg" data-type="{{ etype }}" id="pv-tile">
+                        <span class="date-tile__month" id="pv-month">—</span>
+                        <span class="date-tile__day" id="pv-day">?</span>
+                    </span>
+                    <div class="min-w-0">
+                        <p class="font-semibold truncate" id="pv-name">{{ r.get('event_name') or 'Your occasion' }}</p>
+                        <p class="text-sm text-muted truncate" id="pv-contact"></p>
+                        <div class="mt-1.5 flex flex-wrap gap-1.5">
+                            <span class="badge countdown tnum" id="pv-count"></span>
+                            <span class="badge badge-accent tnum" id="pv-milestone" hidden></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 rounded-xl bg-sunken p-3.5 text-sm leading-relaxed">
+                    <p class="text-xs text-muted mb-1.5 flex items-center gap-1.5">{{ ui.icon('message', 'w-3.5 h-3.5') }} <span id="pv-when">Text from MemoryBell</span></p>
+                    <p id="pv-sms" class="whitespace-pre-line break-words"></p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm btn-block mt-4" id="test-sms">{{ ui.icon('message') }} Send me a test text</button>
+                <p class="mt-2 text-xs text-muted" id="test-sms-status" role="status" aria-live="polite">Sends this text to your own number now.</p>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<script>
+(function () {
+    var months = {{ ui.MONTHS|tojson }};
+    var longMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    var offsets = { same_day: 0, '1_day_before': 1, '3_days_before': 3, '7_days_before': 7 };
+    var firstName = {{ current_user.name.split(' ')[0]|tojson }};
+    var form = document.getElementById('reminder-form');
+    var $ = function (id) { return document.getElementById(id); };
+
+    function ordinal(n) {
+        var s = (n % 100 >= 10 && n % 100 <= 20) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
+        return n + s;
+    }
+    // Mirrors milestone() in app/services/dates.py
+    function milestone(type, years) {
+        if (!years || years < 1) return '';
+        if (type === 'birthday') return 'turns ' + years;
+        if (type === 'anniversary') return ordinal(years) + ' anniversary';
+        return years + (years === 1 ? ' year' : ' years');
+    }
+    function nextOccurrence(m, d) {
+        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var make = function (y) {
+            var dt = new Date(y, m - 1, d);
+            return dt.getMonth() === m - 1 ? dt : new Date(y, m - 1, 28); // Feb 29 in a non-leap year
+        };
+        var next = make(today.getFullYear());
+        if (next < today) next = make(today.getFullYear() + 1);
+        return { date: next, days: Math.round((next - today) / 86400000) };
+    }
+    // Mirrors _build_sms_message() in app/services/scheduler.py
+    function smsText(o) {
+        var label = { birthday: 'birthday', anniversary: 'anniversary' }[o.type] || 'event';
+        var contact = o.contact || 'Someone special';
+        var when = { 0: ['TODAY', 'Don’t miss it!'], 1: ['TOMORROW', 'Still time to prepare!'], 3: ['in 3 days', 'Plan something special!'], 7: ['in 1 week', 'Plenty of time to get ready!'] }[o.offset];
+        var tip = o.type === 'birthday' ? 'Send a wish or surprise them with a gift!' : o.type === 'anniversary' ? 'Plan something memorable together!' : 'Make sure you’re prepared!';
+        var marks = milestone(o.type, o.years), marksLine = '';
+        if (marks) marksLine = o.type === 'birthday' ? contact + ' ' + marks + '!\n' : o.type === 'anniversary' ? 'It’s the ' + marks + '!\n' : 'It’s been ' + marks + '!\n';
+        return 'Hi ' + firstName + '!\n\n' +
+            contact + '’s ' + label + ' is ' + when[0] + '!\n' +
+            'Event: ' + (o.name || 'Your occasion') + '\n' +
+            'Date: ' + o.dateLabel + '\n' + marksLine + '\n' +
+            (o.notes ? 'Note: ' + o.notes + '\n\n' : '') +
+            (o.number ? 'Text or call ' + (o.contact || 'them') + ': ' + o.number + '\n\n' : '') +
+            when[1] + ' ' + tip;
+    }
+
+    function update() {
+        var name = $('event_name').value.trim();
+        var contact = $('contact_name').value.trim();
+        var notes = $('notes').value.trim();
+        var phone = $('contact_phone').value.trim();
+        var number = phone ? (phone.charAt(0) === '+' ? phone : form.querySelector('[name="contact_country_code"]').value + phone) : '';
+        var date = $('event_date').value;
+        var type = (form.querySelector('input[name="event_type"]:checked') || {}).value || 'custom';
+        var picked = Array.prototype.map.call(form.querySelectorAll('input[name="reminder_before"]:checked'), function (i) { return offsets[i.value]; });
+        var offset = picked.length ? Math.max.apply(null, picked) : 0;
+
+        $('pv-name').textContent = name || 'Your occasion';
+        $('pv-contact').textContent = contact ? 'For ' + contact : '';
+        $('pv-tile').dataset.type = type;
+        $('notes-count').textContent = $('notes').value.length;
+
+        var p = date.split('-'), years = null, dateLabel = 'your date';
+        var ms = $('pv-milestone');
+        ms.hidden = true;
+        if (p.length === 3 && +p[1]) {
+            var next = nextOccurrence(+p[1], +p[2]);
+            $('pv-month').textContent = months[+p[1] - 1];
+            $('pv-day').textContent = +p[2];
+            var c = $('pv-count');
+            c.textContent = next.days === 0 ? 'Today' : next.days === 1 ? 'Tomorrow' : 'In ' + next.days + ' days';
+            c.dataset.soon = next.days === 0 ? 'today' : next.days <= 7 ? 'near' : '';
+            dateLabel = longMonths[next.date.getMonth()] + ' ' + String(next.date.getDate()).padStart(2, '0') + ', ' + next.date.getFullYear();
+
+            if ($('year_known').checked) {
+                years = next.date.getFullYear() - +p[0];
+                var text = milestone(type, years);
+                if (text) {
+                    ms.textContent = text.charAt(0).toUpperCase() + text.slice(1);
+                    ms.hidden = false;
+                }
+            }
+            $('date-hint').textContent = $('year_known').checked
+                ? (years > 0 ? 'Repeats every year. We’ll count the years for you.' : 'Pick the year it started to count the years.')
+                : 'Repeats every year on this day. Tick the box to count birthdays or anniversaries.';
+        }
+
+        $('pv-when').textContent = offset === 0 ? 'Text on the day' : 'First text, ' + (offset === 7 ? '1 week' : offset + (offset === 1 ? ' day' : ' days')) + ' before';
+        $('pv-sms').textContent = smsText({ name: name, contact: contact, type: type, offset: offset, years: years, notes: notes, number: number, dateLabel: dateLabel });
+    }
+
+    // Quick-start presets
+    document.querySelectorAll('[data-preset]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var p = JSON.parse(btn.dataset.preset);
+            $('event_name').value = p.name;
+            $('contact_name').value = p.contact;
+            var t = form.querySelector('input[name="event_type"][value="' + p.type + '"]');
+            if (t) t.checked = true;
+            form.querySelectorAll('input[name="reminder_before"]').forEach(function (i) { i.checked = p.when.indexOf(i.value) !== -1; });
+            document.querySelectorAll('[data-preset]').forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+            update();
+            $(p.contact ? 'event_date' : 'contact_name').focus();
+        });
+    });
+
+    // Send a test text to the user's own number
+    var testBtn = $('test-sms'), status = $('test-sms-status');
+    testBtn.addEventListener('click', function () {
+        if (!$('event_name').value.trim() || !$('event_date').value) {
+            status.textContent = 'Add the occasion and date first.';
+            status.className = 'mt-2 text-xs text-danger';
+            return;
+        }
+        testBtn.disabled = true;
+        status.textContent = 'Sending…';
+        status.className = 'mt-2 text-xs text-muted';
+        fetch('/reminders/test-sms', { method: 'POST', body: new FormData(form), credentials: 'same-origin' })
+            .then(function (res) { return res.json().catch(function () { return { ok: false, error: 'Something went wrong. Try again.' }; }); })
+            .then(function (data) {
+                status.textContent = data.ok ? data.message : data.error;
+                status.className = 'mt-2 text-xs ' + (data.ok ? 'text-ok' : 'text-danger');
+            })
+            .catch(function () {
+                status.textContent = 'Couldn’t reach MemoryBell. Check your connection.';
+                status.className = 'mt-2 text-xs text-danger';
+            })
+            .then(function () { testBtn.disabled = false; });
+    });
+
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    update();
+})();
+</script>

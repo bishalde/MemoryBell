@@ -1,0 +1,144 @@
+{# Shared UI pieces. Import with: {% import "_macros.html" as ui %} #}
+
+{% set ICONS = {
+    'bell': '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+    'plus': '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    'calendar': '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+    'cake': '<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/>',
+    'heart': '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    'star': '<path d="M11.5 2.8a.6.6 0 0 1 1 0l2.6 5.3 5.8.9a.6.6 0 0 1 .3 1l-4.2 4.1 1 5.8a.6.6 0 0 1-.9.6L12 17.8l-5.2 2.7a.6.6 0 0 1-.9-.6l1-5.8-4.2-4.1a.6.6 0 0 1 .3-1l5.8-.9Z"/>',
+    'pencil': '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+    'trash': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+    'message': '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    'whatsapp': '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    'phone': '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    'clock': '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    'shield': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/>',
+    'check': '<path d="M20 6 9 17l-5-5"/>',
+    'check-circle': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    'alert': '<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+    'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+    'moon': '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+    'menu': '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/>',
+    'logout': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+    'user': '<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+    'arrow-left': '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    'mail': '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+    'lock': '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    'history': '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    'home': '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+    'globe': '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    'more': '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+    'copy': '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    'pause': '<rect width="4" height="16" x="6" y="4" rx="1"/><rect width="4" height="16" x="14" y="4" rx="1"/>',
+    'skip': '<path d="m5 4 10 8-10 8z"/><path d="M19 5v14"/>',
+    'play': '<path d="m6 3 14 9-14 9z"/>',
+    'download': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+    'inbox': '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+} %}
+
+{% macro icon(name, cls='') -%}
+<svg class="icon {{ cls }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ ICONS[name]|safe }}</svg>
+{%- endmacro %}
+
+{% macro logo(size='text-[1.55rem]') -%}
+<span class="wordmark {{ size }}" aria-label="MemoryBell">memorybel<span class="relative inline-flex">l<svg class="wordmark__bell absolute left-[.27em] top-[-.2em]" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.5a1.6 1.6 0 0 1 1.6 1.6v.5A6.2 6.2 0 0 1 18.2 10.7V15l1.7 2.3a.9.9 0 0 1-.7 1.4H4.8a.9.9 0 0 1-.7-1.4L5.8 15v-4.3a6.2 6.2 0 0 1 4.6-6.1v-.5A1.6 1.6 0 0 1 12 2.5ZM9.7 20.2h4.6a2.3 2.3 0 0 1-4.6 0Z"/></svg></span></span>
+{%- endmacro %}
+
+{% set MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] %}
+
+{# date_str is "YYYY-MM-DD" #}
+{% macro date_tile(date_str, event_type, size='') -%}
+{%- set m = date_str[5:7]|int if date_str and date_str|length >= 10 else 0 -%}
+<span class="date-tile {% if size %}date-tile--{{ size }}{% endif %}" data-type="{{ event_type }}">
+    <span class="date-tile__month">{{ MONTHS[m - 1] if m else '—' }}</span>
+    <span class="date-tile__day">{{ date_str[8:10]|int if m else '?' }}</span>
+</span>
+{%- endmacro %}
+
+{% macro type_label(event_type) -%}
+{{ {'birthday': 'Birthday', 'anniversary': 'Anniversary'}.get(event_type, 'Event') }}
+{%- endmacro %}
+
+{% macro method_label(method) -%}
+{{ {'sms': 'SMS', 'whatsapp': 'WhatsApp', 'call': 'Phone call', 'both': 'SMS + call'}.get(method, method or 'SMS') }}
+{%- endmacro %}
+
+{% macro reminder_row(r, at_limit=false) -%}
+<div class="reminder-row {% if r.paused %}is-paused{% endif %}">
+    {{ date_tile(r.date_str, r.event_type) }}
+    <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="/reminders/{{ r.id }}/edit" class="row-main font-medium truncate hover:underline underline-offset-4">{{ r.event_name }}</a>
+            {% if r.paused == 'off' %}<span class="badge">{{ icon('pause') }} Paused</span>
+            {% elif r.paused == 'skip' %}<span class="badge">{{ icon('skip') }} Skipping this year</span>
+            {% else %}<span class="badge countdown tnum" data-date="{{ r.date_str }}"></span>{% endif %}
+            {% if r.milestone %}<span class="badge badge-accent row-main">{{ r.milestone[:1]|upper }}{{ r.milestone[1:] }}</span>{% endif %}
+        </div>
+        <p class="row-main mt-0.5 text-sm text-muted truncate">
+            <span class="type-dot inline-block mr-1 align-middle" data-type="{{ r.event_type }}"></span>
+            {{ type_label(r.event_type) }}{% if r.contact_name %}, for {{ r.contact_name }}{% endif %}
+            <span class="text-faint">by {{ method_label(r.notify_method) }}</span>
+        </p>
+    </div>
+    {{ row_menu(r, at_limit) }}
+</div>
+{%- endmacro %}
+
+{# The "..." menu on a reminder: edit, duplicate, skip/pause/resume, delete #}
+{% macro row_menu(r, at_limit=false, cls='') -%}
+<details class="row-menu relative shrink-0 {{ cls }}" data-menu>
+    <summary class="btn btn-icon" aria-label="Actions for {{ r.event_name }}" title="Actions">{{ icon('more') }}</summary>
+    <div class="menu" role="menu">
+        <a href="/reminders/{{ r.id }}/edit" role="menuitem">{{ icon('pencil') }} Edit</a>
+        <a href="/reminders/create?from={{ r.id }}" role="menuitem" {% if at_limit %}aria-disabled="true" tabindex="-1" title="You’ve used all your reminders"{% endif %}>{{ icon('copy') }} Duplicate</a>
+        <hr>
+        {% if r.paused %}
+        <form method="POST" action="/reminders/{{ r.id }}/resume">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button role="menuitem">{{ icon('play') }} Resume</button>
+        </form>
+        {% else %}
+        <form method="POST" action="/reminders/{{ r.id }}/pause">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="mode" value="skip"/>
+            <button role="menuitem">{{ icon('skip') }} Skip this year</button>
+        </form>
+        <form method="POST" action="/reminders/{{ r.id }}/pause">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="mode" value="off"/>
+            <button role="menuitem">{{ icon('pause') }} Pause</button>
+        </form>
+        {% endif %}
+        <hr>
+        <form method="POST" action="/reminders/{{ r.id }}/delete" onsubmit="return confirm('Delete “{{ r.event_name|e }}”? This can’t be undone.')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button role="menuitem" class="is-danger">{{ icon('trash') }} Delete</button>
+        </form>
+    </div>
+</details>
+{%- endmacro %}
+
+{% set COUNTRIES = [
+    ('+1', 'US / Canada'), ('+44', 'United Kingdom'), ('+91', 'India'), ('+61', 'Australia'),
+    ('+49', 'Germany'), ('+33', 'France'), ('+81', 'Japan'), ('+86', 'China'), ('+55', 'Brazil'),
+    ('+52', 'Mexico'), ('+234', 'Nigeria'), ('+27', 'South Africa'), ('+254', 'Kenya'),
+    ('+971', 'UAE'), ('+966', 'Saudi Arabia'), ('+82', 'South Korea'), ('+39', 'Italy'),
+    ('+34', 'Spain'), ('+7', 'Russia'), ('+62', 'Indonesia'), ('+63', 'Philippines'),
+    ('+66', 'Thailand'), ('+90', 'Turkey'), ('+48', 'Poland'), ('+31', 'Netherlands'),
+    ('+46', 'Sweden'), ('+47', 'Norway'), ('+64', 'New Zealand'), ('+65', 'Singapore'),
+    ('+60', 'Malaysia'), ('+92', 'Pakistan'), ('+880', 'Bangladesh'), ('+94', 'Sri Lanka'),
+    ('+977', 'Nepal'),
+] %}
+
+{% macro country_options(selected='+91') -%}
+{% for code, name in COUNTRIES %}<option value="{{ code }}" {% if code == selected %}selected{% endif %}>{{ code }} {{ name }}</option>
+{% endfor %}
+{%- endmacro %}
+
+{% macro back_link(href='/dashboard', text='Dashboard') -%}
+<a href="{{ href }}" class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink transition-colors">
+    {{ icon('arrow-left') }} {{ text }}
+</a>
+{%- endmacro %}

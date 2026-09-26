@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from xml.sax.saxutils import escape
 from app import db
 from app.services.twilio_service import send_whatsapp_reminder, send_call_reminder, send_sms_reminder
+from app.services.dates import parse_event_date, occurrence_in, years_at, milestone, paused_state
 
 
 MAX_WORKERS = 20  # parallel Twilio API calls
@@ -136,10 +137,22 @@ def _build_whatsapp_message(user_name, contact_name, event_name, event_type, eve
     )
 
 
-def _build_sms_message(user_name, contact_name, event_name, event_type, event_date_str, offset_days):
+def _build_sms_message(user_name, contact_name, event_name, event_type, event_date_str, offset_days,
+                       years=None, notes="", contact_number=""):
     event_label = EVENT_TYPE_LABELS.get(event_type, "event")
     name = user_name.split(' ')[0]
     contact = contact_name if contact_name else "Someone special"
+    marks = milestone(event_type, years)
+    if not marks:
+        marks_line = ""
+    elif event_type == "birthday":
+        marks_line = f"{contact} {marks}!\n"
+    elif event_type == "anniversary":
+        marks_line = f"It's the {marks}!\n"
+    else:
+        marks_line = f"It's been {marks}!\n"
+    note_line = f"Note: {notes}\n\n" if notes else ""
+    number_line = f"Text or call {contact_name or 'them'}: {contact_number}\n\n" if contact_number else ""
 
     if offset_days == 0:
         time_phrase = "TODAY"
@@ -170,7 +183,10 @@ def _build_sms_message(user_name, contact_name, event_name, event_type, event_da
         f"Hi {name}!\n\n"
         f"{contact}'s {event_label} is {time_phrase}!\n"
         f"Event: {event_name}\n"
-        f"Date: {event_date_str}\n\n"
+        f"Date: {event_date_str}\n"
+        f"{marks_line}\n"
+        f"{note_line}"
+        f"{number_line}"
         f"{urgency} {tip}\n\n"
         f"- MemoryBell"
     )
@@ -194,33 +210,28 @@ def _send_single(channel, contact_phone, message, uid, rid, event_name, contact_
         return (channel, False)
 
 
-def _parse_event_date(event_date):
-    """Parse event_date from various formats to a date object."""
-    if isinstance(event_date, str):
-        return datetime.strptime(event_date, "%Y-%m-%d").date()
-    elif isinstance(event_date, datetime):
-        return event_date.date()
-    return event_date
+def _full_number(country_code, phone):
+    """E.164-style number: phone as-is if it already has a +, else prefixed."""
+    phone = (phone or "").strip()
+    if phone and not phone.startswith("+"):
+        return (country_code or "") + phone
+    return phone
 
 
 def _match_reminder_offset(event_date, today, reminder_before_list):
     """Check if a reminder should fire today for any of its selected offsets.
 
-    For recurring events, matches on month-day (ignoring year).
-    Returns (offset_key, offset_days) if matched, else None.
+    For recurring events, matches on month-day (ignoring year). Checks this
+    year's and next year's occurrence so early-January dates still get their
+    "days before" texts in late December.
+    Returns (offset_days, occurrence) if matched, else None.
     """
-    # This year's occurrence of the event
-    try:
-        this_year_event = event_date.replace(year=today.year)
-    except ValueError:
-        # Feb 29 in a non-leap year -> use Feb 28
-        this_year_event = event_date.replace(year=today.year, day=28)
-
-    for offset_key in reminder_before_list:
-        offset_days = REMINDER_OFFSETS.get(offset_key, 0)
-        trigger_date = this_year_event - timedelta(days=offset_days)
-        if trigger_date == today:
-            return offset_key, offset_days
+    for year in (today.year, today.year + 1):
+        occurrence = occurrence_in(event_date, year)
+        for offset_key in reminder_before_list:
+            offset_days = REMINDER_OFFSETS.get(offset_key, 0)
+            if occurrence - timedelta(days=offset_days) == today:
+                return offset_days, occurrence
 
     return None
 
@@ -258,7 +269,12 @@ def check_and_send_reminders():
         if not user:
             continue
 
-        event_date = _parse_event_date(reminder["event_date"])
+        if paused_state(reminder, today):
+            continue
+
+        event_date = parse_event_date(reminder["event_date"])
+        if not event_date:
+            continue
 
         # reminder_before can be a list or a string (legacy)
         reminder_before = reminder.get("reminder_before", ["same_day"])
@@ -270,29 +286,24 @@ def check_and_send_reminders():
         if not match:
             continue
 
-        offset_key, offset_days = match
+        offset_days, occurrence = match
 
         rid = reminder["_id"]
         uid = reminder["user_id"]
         event_name = reminder["event_name"]
         event_type = reminder.get("event_type", "custom")
         contact_name = reminder.get("contact_name", "")
-        # Show this year's date for the event display
-        try:
-            this_year_event = event_date.replace(year=today.year)
-        except ValueError:
-            this_year_event = event_date.replace(year=today.year, day=28)
-        event_date_display = this_year_event.strftime("%B %d, %Y")
+        event_date_display = occurrence.strftime("%B %d, %Y")
+        years = years_at(event_date, occurrence) if reminder.get("year_known") else None
+        notes = reminder.get("notes", "")
 
         notify_method = reminder.get("notify_method", "sms")
-        country_code = reminder.get("contact_country_code") or user.get("country_code", "+1")
-        raw_phone = reminder.get("contact_phone", user.get("phone_number", ""))
-        if raw_phone and not raw_phone.startswith("+"):
-            contact_phone = country_code + raw_phone
-        else:
-            contact_phone = raw_phone
+        # Reminders always go to the account's own number. The recipient's
+        # number is only included in the text so the user can reach them.
+        to_phone = _full_number(user.get("country_code", "+1"), user.get("phone_number", ""))
+        contact_number = _full_number(reminder.get("contact_country_code", "+91"), reminder.get("contact_phone", ""))
 
-        if not contact_phone:
+        if not to_phone:
             continue
 
         # Determine which channels to send
@@ -319,6 +330,7 @@ def check_and_send_reminders():
                 msg = _build_sms_message(
                     user["name"], contact_name, event_name,
                     event_type, event_date_display, offset_days,
+                    years=years, notes=notes, contact_number=contact_number,
                 )
             elif channel == "call":
                 msg = _build_call_message(
@@ -328,7 +340,7 @@ def check_and_send_reminders():
             else:
                 continue
 
-            tasks.append((channel, contact_phone, msg, uid, rid, event_name, contact_name))
+            tasks.append((channel, to_phone, msg, uid, rid, event_name, contact_name))
 
     if not tasks:
         return 0
